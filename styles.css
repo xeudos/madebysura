@@ -14,25 +14,27 @@
     --color-accent: #b74546;
     --color-accent-hover: #c95455;
     --color-border: #e0e0e0;
-    
+
     --font-main: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'Space Mono', monospace;
-    
+
     --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
     --spacing-md: 2rem;
     --spacing-lg: 4rem;
     --spacing-xl: 6rem;
-    
+
     --sidebar-width: 280px;
 }
 
 /* Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -69,7 +71,9 @@ button {
     font-family: inherit;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     cursor: text;
 }
 
@@ -302,28 +306,28 @@ input, textarea, select {
     .header {
         padding: 1rem 1.5rem;
     }
-    
+
     .header-name {
         font-size: 1.25rem;
     }
-    
+
     .header-title {
         font-size: 0.7rem;
     }
-    
+
     .header-right {
         gap: 0.75rem;
     }
-    
+
     .header-contact .contact-link {
         width: 36px;
         height: 36px;
     }
-    
+
     .filter-dropdown {
         display: block;
     }
-    
+
     .category-filter.desktop-only {
         display: none;
     }
@@ -333,25 +337,25 @@ input, textarea, select {
     .header-content {
         gap: 1rem;
     }
-    
+
     .header-name {
         font-size: 1.1rem;
     }
-    
+
     .header-title {
         font-size: 0.65rem;
     }
-    
+
     .header-contact .contact-link {
         width: 32px;
         height: 32px;
     }
-    
+
     .header-contact .contact-link svg {
         width: 16px;
         height: 16px;
     }
-    
+
     .filter-toggle {
         padding: 0.6rem 1rem;
         font-size: 0.7rem;
@@ -807,12 +811,19 @@ input, textarea, select {
     color: var(--color-text-light);
     margin: 0 0 0.5rem 0;
     line-height: 1.5;
+    display: flex;
+    align-items: baseline;
 }
 
 .meta-label {
     color: var(--color-accent);
-    margin-right: 0.75rem;
     font-weight: 600;
+    flex-shrink: 0;
+    width: 140px;
+}
+
+.meta-value {
+    flex: 1;
 }
 
 .project-description {
@@ -829,29 +840,29 @@ input, textarea, select {
         max-height: 90vh;
         border-radius: 16px;
     }
-    
+
     .project-modal-content {
         flex-direction: column;
     }
-    
+
     .project-modal-video {
         width: 100%;
         aspect-ratio: 16/9;
     }
-    
+
     .project-modal-info {
         width: 100%;
         padding: var(--spacing-md);
     }
-    
+
     .project-title {
         font-size: 1.5rem;
     }
-    
+
     .project-meta {
         padding: 1rem;
     }
-    
+
     .project-description {
         font-size: 0.95rem;
     }
@@ -1058,6 +1069,7 @@ input, textarea, select {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1069,6 +1081,7 @@ input, textarea, select {
         opacity: 1;
         transform: translateY(0);
     }
+
     to {
         opacity: 0;
         transform: translateY(-20px);
@@ -1217,15 +1230,15 @@ input, textarea, select {
     .header {
         padding: 1.25rem 2rem;
     }
-    
+
     .header-name {
         font-size: 1.5rem;
     }
-    
+
     .main-content {
         padding: 0 2rem;
     }
-    
+
     .work-grid {
         grid-template-columns: repeat(2, 1fr);
         gap: var(--spacing-md);
@@ -1237,60 +1250,60 @@ input, textarea, select {
         --spacing-md: 1rem;
         --spacing-lg: 2rem;
     }
-    
+
     .header {
         padding: 1rem 1.5rem;
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
-    
+
     .header-content {
         flex-direction: column;
         align-items: flex-start;
         gap: 1rem;
     }
-    
+
     .header-left {
         gap: 0.25rem;
     }
-    
+
     .header-name {
         font-size: 1.5rem;
     }
-    
+
     .header-title {
         font-size: 0.75rem;
     }
-    
+
     .header-contact {
         width: 100%;
         justify-content: flex-start;
     }
-    
+
     .main-content {
         padding: 0 1.5rem;
     }
-    
+
     .work {
         padding: 2rem var(--spacing-md) var(--spacing-lg);
     }
-    
+
     .about-modal {
         width: 95%;
         max-height: 90vh;
         padding: var(--spacing-md);
     }
-    
+
     .work {
         padding: 60px var(--spacing-md) var(--spacing-lg);
     }
-    
+
     .category-filter {
         padding: var(--spacing-sm);
         gap: 0.5rem;
     }
-    
+
     .work-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-md);
@@ -1301,7 +1314,7 @@ input, textarea, select {
     .work-info h3 {
         font-size: 1.125rem;
     }
-    
+
     .about-modal .stats {
         flex-direction: column;
         gap: var(--spacing-md);
