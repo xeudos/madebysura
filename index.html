@@ -3,70 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Made By Sura — Music + Sound Design</title>
-    <meta name="description" content="Sura creates music that resonates, stirs emotion and amplifies your message. Music composition and sound design for commercials, film, and digital content.">
-    <meta property="og:title" content="Made By Sura — Music + Sound Design">
-    <meta property="og:description" content="Creating music that resonates, stirs emotion and amplifies your message.">
-    <meta property="og:image" content="assets/images/sura-logo-red.png">
-    <meta property="og:type" content="website">
+    <title>Made By Sura</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,200..800&family=Plus+Jakarta+Sans:wght@200;300;400;500;600;700;800&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&display=swap" rel="stylesheet"></noscript>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Space+Mono:wght@400&display=swap" rel="stylesheet"></noscript>
+    <!-- Resource Hints for Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="dns-prefetch" href="https://www.youtube.com">
     <link rel="dns-prefetch" href="https://vimeo.com">
     <link rel="dns-prefetch" href="https://open.spotify.com">
-    <link rel="preload" as="image" href="assets/images/sura-logo-red.png">
-    <link rel="icon" type="image/png" href="assets/images/sura-logo-red.png">
-    <link rel="apple-touch-icon" href="assets/images/sura-logo-red.png">
+    <link rel="icon" type="image/png" href="../Sura logo Rood.png">
+    <link rel="apple-touch-icon" href="assets/images/apple-touch-icon.png">
 </head>
 <body>
     <!-- Noise Particle Canvas -->
-    <canvas class="noise-canvas" id="noiseCanvas" aria-hidden="true"></canvas>
+    <canvas class="noise-canvas" id="noiseCanvas"></canvas>
 
     <!-- Main Wrapper -->
     <div class="main-wrapper">
         <!-- Header -->
         <header class="header">
             <div class="header-content">
-                <div class="header-brand">
-                    <h1 class="sr-only">Sura — Music + Sound Design</h1>
-                    <img src="assets/images/sura-logo-red.png" alt="Sura" class="header-logo-img" />
-                    <span class="header-subtitle">Music + Sound Design</span>
+                <div class="header-left">
+                    <h1 class="header-name">Daniel Kuiters // Sura</h1>
+                    <p class="header-title">Music Composer & Sound Designer</p>
                 </div>
-                <p class="header-tagline">Creating music that <strong>resonates</strong>, stirs <strong>emotion</strong> and <strong>amplifies</strong> your message.</p>
-                <div class="header-icons">
-                    <a href="https://www.instagram.com/listentosura/" target="_blank" class="contact-link" title="Instagram">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-                        </svg>
-                    </a>
-                    <button class="contact-link about-icon-btn" id="aboutBtnHeader" title="About">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
-                            <circle cx="12" cy="7" r="4"/>
-                        </svg>
-                    </button>
-                </div>
-            </div>
-            <!-- Mobile filter dropdown -->
-            <div class="header-right">
-                <div class="filter-dropdown" id="filterDropdown">
-                    <button class="filter-toggle" id="filterToggle">
-                        <span class="filter-current">All Work</span>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <polyline points="6,9 12,15 18,9"/>
-                        </svg>
-                    </button>
-                    <div class="filter-menu" id="filterMenu">
-                        <button class="filter-option active" data-category="all">All Work</button>
-                        <button class="filter-option" data-category="music-campaigns">Music Campaigns</button>
-                        <button class="filter-option" data-category="sound-design">Sound Design</button>
-                        <button class="filter-option" data-category="produced">Produced by Sura</button>
-                        <button class="filter-option" data-category="audio-cleanup">Audio Cleanup</button>
+                <div class="header-right">
+                    <!-- Filter Dropdown (Mobile) -->
+                    <div class="filter-dropdown" id="filterDropdown">
+                        <button class="filter-toggle" id="filterToggle">
+                            <span class="filter-current">All Work</span>
+                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <polyline points="6,9 12,15 18,9"/>
+                            </svg>
+                        </button>
+                        <div class="filter-menu" id="filterMenu">
+                            <button class="filter-option active" data-category="all">All Work</button>
+                            <button class="filter-option" data-category="music-campaigns">Music Campaigns</button>
+                            <button class="filter-option" data-category="sound-design">Sound Design</button>
+                            <button class="filter-option" data-category="produced">Produced by Sura</button>
+                            <button class="filter-option" data-category="audio-cleanup">Audio Cleanup</button>
+                        </div>
+                    </div>
+                    <!-- Contact Links -->
+                    <div class="header-contact">
+                        <a href="https://www.instagram.com/listentosura/" target="_blank" class="contact-link" title="Instagram">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                            </svg>
+                        </a>
+                        <a href="mailto:listentosura@gmail.com" class="contact-link" title="Email">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </a>
+                        <a href="tel:+31617331873" class="contact-link" title="Phone">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </a>
+                        <!-- About Button Icon -->
+                        <button class="contact-link about-icon-btn" id="aboutBtnHeader" title="About">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                                <circle cx="12" cy="7" r="4"/>
+                            </svg>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -74,19 +82,19 @@
 
         <!-- Main Content -->
         <main class="main-content">
-            <!-- Sticky Pill Filter Bar -->
-            <div class="category-filter-bar" id="categoryFilterBar">
+            <!-- Category Filter Buttons (Desktop) -->
+            <div class="category-filter desktop-only">
                 <button class="filter-btn active" data-category="all">All Work</button>
                 <button class="filter-btn" data-category="music-campaigns">Music Campaigns</button>
                 <button class="filter-btn" data-category="sound-design">Sound Design</button>
                 <button class="filter-btn" data-category="produced">Produced by Sura</button>
                 <button class="filter-btn" data-category="audio-cleanup">Audio Cleanup</button>
             </div>
-
+                
                 <!-- Vertical Grid - Original Carrd Order -->
                 <div class="work-grid">
                     <!-- 1. Bruut Showreel 2025 -->
-                    <article class="work-item reveal project-item liquid-glass" data-category="music-campaigns" data-category-secondary="sound-design" data-title="Bruut Showreel 2025" data-client="Bruut" data-contribution="Music & Sound Design" data-description="I was asked by Bruut to provide their showreel with a track that captures the meaning of their brand. Bruut translates to raw, savage and rough. With this in mind I tried to capture the essence of the brand in the music." data-url="https://www.youtube.com/watch?v=PY-cKMC04q8">
+                    <article class="work-item reveal project-item" data-category="music-campaigns" data-category-secondary="sound-design" data-title="Bruut Showreel 2025" data-client="Bruut" data-contribution="Music & Sound Design" data-description="A collection of recent work showcasing music composition and sound design for various commercial and creative projects." data-url="https://www.youtube.com/watch?v=PY-cKMC04q8">
                         <div class="work-image">
                             <img src="assets/images/container20.jpg" alt="Bruut Showreel 2025" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=PY-cKMC04q8">
@@ -100,12 +108,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Bruut Showreel 2025</h3>
-                            <p>Bruut</p>
+                            <p>Music and Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 2. ING: Money Laundering -->
-                    <article class="work-item reveal project-item liquid-glass" data-category="music-campaigns" data-title="ING: Money Laundering" data-client="ING" data-director="Geerten Harmens" data-contribution="Music & Sound Design" data-description="Commercial for ING bank featuring original music composition and sound design work." data-url="https://www.youtube.com/watch?v=bEBZTneTXn4">
+                    <article class="work-item reveal project-item" data-category="music-campaigns" data-title="ING: Money Laundering" data-client="ING" data-director="Geerten Harmens" data-contribution="Music & Sound Design" data-description="Commercial for ING bank featuring original music composition and sound design work." data-url="https://www.youtube.com/watch?v=bEBZTneTXn4">
                         <div class="work-image">
                             <img src="assets/images/container01.jpg" alt="ING Commercial" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=bEBZTneTXn4/">
@@ -119,12 +127,12 @@
                         </div>
                         <div class="work-info">
                             <h3>ING: Money Laundering</h3>
-                            <p>ING</p>
+                            <p>Music & Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 3. Fernandes -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-title="Fernandes" data-client="Soda Amsterdam" data-director="Geerten Harmens" data-sound-design="Luuk van de Mosselaer" data-contribution="Music" data-description="Music and sound design work for Fernandes commercial campaign." data-url="https://vimeo.com/728154435">
+                    <article class="work-item reveal" data-category="music-campaigns" data-title="Fernandes" data-client="Soda Amsterdam" data-director="Geerten Harmens" data-sound-design="Luuk van de Mosselaer" data-contribution="Music" data-description="Music and sound design work for Fernandes commercial campaign." data-url="https://vimeo.com/728154435">
                         <div class="work-image">
                             <img src="assets/images/container06.jpg" alt="Fernandes" loading="lazy">
                             <div class="play-overlay" data-url="https://vimeo.com/728154435">
@@ -138,12 +146,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Fernandes</h3>
-                            <p>Soda Amsterdam</p>
+                            <p>Music & Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 4. TOTO: Koningawayday -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-category-secondary="sound-design" data-title="TOTO: Koningawayday" data-client="Ten Content Agency" data-director="Geerten Harmens" data-contribution="Music & Sound Design" data-description="This was a fun one! My vision was to stay close to the UK punk sound to give it that grimey feel." data-url="https://www.youtube.com/watch?v=RvplftnFf9Q/">
+                    <article class="work-item reveal" data-category="music-campaigns" data-category-secondary="sound-design" data-title="TOTO: Koningawayday" data-client="Ten Content Agency" data-director="Geerten Harmens" data-contribution="Music & Sound Design" data-description="This was a fun one! My vision was to stay close to the UK punk sound to give it that grimey feel." data-url="https://www.youtube.com/watch?v=RvplftnFf9Q/">
                         <div class="work-image">
                             <img src="assets/images/TOTO_new.png" alt="TOTO Europe Tour" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=RvplftnFf9Q">
@@ -157,12 +165,12 @@
                         </div>
                         <div class="work-info">
                             <h3>TOTO: Koningawayday</h3>
-                            <p>Ten Content Agency</p>
+                            <p>Europe tour</p>
                         </div>
                     </article>
 
                     <!-- 5. Gemeente Amsterdam -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-title="Gemeente Amsterdam" data-client="Home Agency, Heron Music" data-contribution="Music & Sound Design" data-description="Creating awareness for throwing away your trash! In charge of music and final mix. Project completed for Heron Music." data-url="https://youtu.be/0gozNmyCues">
+                    <article class="work-item reveal" data-category="music-campaigns" data-title="Gemeente Amsterdam" data-client="Home Agency, Heron Music" data-contribution="Music & Sound Design" data-description="Creating awareness for throwing away your trash! In charge of music and final mix. Project completed for Heron Music." data-url="https://youtu.be/0gozNmyCues">
                         <div class="work-image">
                             <img src="assets/images/container11.jpg" alt="Gemeente Amsterdam" loading="lazy">
                             <div class="play-overlay" data-url="https://youtu.be/0gozNmyCues">
@@ -176,12 +184,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Gemeente Amsterdam</h3>
-                            <p>Home Agency, Heron Music</p>
+                            <p>Awareness campaign</p>
                         </div>
                     </article>
 
                     <!-- 6. Media Markt -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-title="Media Markt" data-client="Ten Content Agency" data-contribution="Music & Sound Design" data-description="Music and sound design for Media Markt commercial." data-url="https://www.youtube.com/watch?v=DF-vWEe2dIY">
+                    <article class="work-item reveal" data-category="music-campaigns" data-title="Media Markt" data-client="Ten Content Agency" data-contribution="Music & Sound Design" data-description="Music and sound design for Media Markt commercial." data-url="https://www.youtube.com/watch?v=DF-vWEe2dIY">
                         <div class="work-image">
                             <img src="assets/images/Mediamarkt.png" alt="Media Markt" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=DF-vWEe2dIY">
@@ -195,12 +203,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Media Markt</h3>
-                            <p>Ten Content Agency</p>
+                            <p>Music & Sound design</p>
                         </div>
                     </article>
 
                     <!-- 7. Netflix: Costa!! -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-title="Netflix: Costa!!" data-client="Heron Music, NL FILM" data-contribution="Music Composition" data-description="Worked on a lot of musical cues in the new series costa!! which is out now on netflix. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=XPCjUmwGTTo/">
+                    <article class="work-item reveal" data-category="music-campaigns" data-title="Netflix: Costa!!" data-client="Heron Music, NL FILM" data-contribution="Music Composition" data-description="Worked on a lot of musical cues in the new series costa!! which is out now on netflix. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=XPCjUmwGTTo/">
                         <div class="work-image">
                             <img src="assets/images/costa.jpg" alt="Netflix Costa" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=XPCjUmwGTTo/">
@@ -214,12 +222,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Netflix: Costa!!</h3>
-                            <p>Heron Music, NL FILM</p>
+                            <p>Musical cues for series</p>
                         </div>
                     </article>
 
                     <!-- 8. Essent -->
-                    <article class="work-item reveal liquid-glass" data-category="sound-design" data-title="Essent" data-client="Ten Content Agency" data-contribution="Sound Design" data-description="Sound design work for Essent commercial." data-url="https://www.youtube.com/watch?v=iBiEfh2bDgs/">
+                    <article class="work-item reveal" data-category="sound-design" data-title="Essent" data-client="Ten Content Agency" data-contribution="Sound Design" data-description="Sound design work for Essent commercial." data-url="https://www.youtube.com/watch?v=iBiEfh2bDgs/">
                         <div class="work-image">
                             <img src="assets/images/container18.jpg" alt="Essent" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=iBiEfh2bDgs/">
@@ -233,12 +241,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Essent</h3>
-                            <p>Ten Content Agency</p>
+                            <p>Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 9. IZ - Big Dreams -->
-                    <article class="work-item reveal liquid-glass" data-category="sound-design" data-title="IZ - Big Dreams" data-client="IZ" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video. Directed by Geerten Harmens." data-url="https://www.youtube.com/watch?v=4jD8y261rmc/">
+                    <article class="work-item reveal" data-category="sound-design" data-title="IZ - Big Dreams" data-client="IZ" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video. Directed by Geerten Harmens." data-url="https://www.youtube.com/watch?v=4jD8y261rmc/">
                         <div class="work-image">
                             <img src="assets/images/container16.jpg" alt="IZ - Big Dreams" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=4jD8y261rmc/">
@@ -252,12 +260,12 @@
                         </div>
                         <div class="work-info">
                             <h3>IZ - Big Dreams</h3>
-                            <p>IZ</p>
+                            <p>Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 10. Ghetts - Twin Sister -->
-                    <article class="work-item reveal liquid-glass" data-category="sound-design" data-title="Ghetts - Twin Sister" data-client="Ghetts" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video. Directed by Geerten Harmens." data-url="https://www.youtube.com/watch?v=XPAp3sQkgmg/">
+                    <article class="work-item reveal" data-category="sound-design" data-title="Ghetts - Twin Sister" data-client="Ghetts" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video. Directed by Geerten Harmens." data-url="https://www.youtube.com/watch?v=XPAp3sQkgmg/">
                         <div class="work-image">
                             <img src="assets/images/container15.jpg" alt="Ghetts - Twin Sister" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=XPAp3sQkgmg/">
@@ -271,12 +279,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Ghetts - Twin Sister</h3>
-                            <p>Ghetts</p>
+                            <p>Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 13. IKEA x Van Gogh -->
-                    <article class="work-item reveal liquid-glass" data-category="sound-design" data-title="IKEA x Van Gogh" data-client="IKEA" data-contribution="Sound Design & Mix" data-description="Created audio cutdowns, sound design and voice over mix! Project for Heron Music." data-url="https://www.youtube.com/watch?v=j48OzCGJeRM&list=PLCOFYd3VDvK84hM6dMkbL7tZQdPmnJQe9/">
+                    <article class="work-item reveal" data-category="sound-design" data-title="IKEA x Van Gogh" data-client="IKEA" data-contribution="Sound Design & Mix" data-description="Created audio cutdowns, sound design and voice over mix! Project for Heron Music." data-url="https://www.youtube.com/watch?v=j48OzCGJeRM&list=PLCOFYd3VDvK84hM6dMkbL7tZQdPmnJQe9/">
                         <div class="work-image">
                             <img src="assets/images/container13.jpg" alt="IKEA x Van Gogh" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=j48OzCGJeRM&list=PLCOFYd3VDvK84hM6dMkbL7tZQdPmnJQe9/">
@@ -290,12 +298,12 @@
                         </div>
                         <div class="work-info">
                             <h3>IKEA x Van Gogh</h3>
-                            <p>IKEA</p>
+                            <p>Sound design & mix</p>
                         </div>
                     </article>
 
                     <!-- 11. Loredana - Oft Vertaut -->
-                    <article class="work-item reveal liquid-glass" data-category="sound-design" data-title="Loredana - Oft Vertaut" data-client="Loredana" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video." data-url="https://www.youtube.com/watch?v=MuCMYTsoCUU/">
+                    <article class="work-item reveal" data-category="sound-design" data-title="Loredana - Oft Vertaut" data-client="Loredana" data-director="Geerten Harmens" data-contribution="Sound Design" data-description="Sound design for music video." data-url="https://www.youtube.com/watch?v=MuCMYTsoCUU/">
                         <div class="work-image">
                             <img src="assets/images/container07.jpg" alt="Loredana - Oft Vertaut" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=MuCMYTsoCUU/">
@@ -309,12 +317,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Loredana - Oft Vertaut</h3>
-                            <p>Loredana</p>
+                            <p>Sound Design</p>
                         </div>
                     </article>
 
                     <!-- 15. Fontys - Outside the box -->
-                    <article class="work-item reveal liquid-glass" data-category="music-campaigns" data-title="Fontys - Outside the box" data-client="Fontys" data-contribution="Music & Sound Design" data-description="Designed a compelling leader for Fontys' promotional campaign." data-url="https://www.youtube.com/watch?v=eReDHtbOaAc/">
+                    <article class="work-item reveal" data-category="music-campaigns" data-title="Fontys - Outside the box" data-client="Fontys" data-contribution="Music & Sound Design" data-description="Designed a compelling leader for Fontys' promotional campaign." data-url="https://www.youtube.com/watch?v=eReDHtbOaAc/">
                         <div class="work-image">
                             <img src="assets/images/container08.jpg" alt="Fontys - Outside the box" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=eReDHtbOaAc/">
@@ -328,12 +336,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Fontys - Outside the box</h3>
-                            <p>Fontys</p>
+                            <p>Promotional campaign</p>
                         </div>
                     </article>
 
                     <!-- 16. Mufaro -->
-                    <article class="work-item reveal liquid-glass" data-category="produced" data-title="Mufaro" data-client="Mufaro" data-contribution="Executive Producer" data-description="Executive produced Mufaro's first EP." data-url="https://open.spotify.com/album/1NE21Tiitf0unIlXMnSJXf?si=ZfLI7ZlsTaqyZBI9oVOtqA/">
+                    <article class="work-item reveal" data-category="produced" data-title="Mufaro" data-client="Mufaro" data-contribution="Executive Producer" data-description="Executive produced Mufaro's first EP." data-url="https://open.spotify.com/album/1NE21Tiitf0unIlXMnSJXf?si=ZfLI7ZlsTaqyZBI9oVOtqA/">
                         <div class="work-image">
                             <img src="assets/images/container19.jpg" alt="Mufaro" loading="lazy">
                             <div class="play-overlay" data-url="https://open.spotify.com/album/1NE21Tiitf0unIlXMnSJXf?si=ZfLI7ZlsTaqyZBI9oVOtqA/">
@@ -347,12 +355,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Mufaro</h3>
-                            <p>Mufaro</p>
+                            <p>Executive produced EP</p>
                         </div>
                     </article>
 
                     <!-- 17. Pucca -->
-                    <article class="work-item reveal liquid-glass" data-category="produced" data-title="Pucca" data-client="Pucca" data-contribution="Artist" data-description="Garnered over 20 million plays with my lofi hiphop profile called 'pucca'." data-url="https://open.spotify.com/artist/6kLGnSLqv3I3NPOTdmm5lA?si=QmZIQP6QSZSvzglH6q1WPA/">
+                    <article class="work-item reveal" data-category="produced" data-title="Pucca" data-client="Pucca" data-contribution="Artist" data-description="Garnered over 20 million plays with my lofi hiphop profile called 'pucca'." data-url="https://open.spotify.com/artist/6kLGnSLqv3I3NPOTdmm5lA?si=QmZIQP6QSZSvzglH6q1WPA/">
                         <div class="work-image">
                             <img src="assets/images/container09.jpg" alt="Pucca" loading="lazy">
                             <div class="play-overlay" data-url="https://open.spotify.com/artist/6kLGnSLqv3I3NPOTdmm5lA?si=QmZIQP6QSZSvzglH6q1WPA/">
@@ -366,12 +374,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Pucca</h3>
-                            <p>Pucca</p>
+                            <p>Lofi hiphop profile</p>
                         </div>
                     </article>
 
                     <!-- 18. Kutters -->
-                    <article class="work-item reveal liquid-glass" data-category="produced" data-title="Kutters" data-client="Kutters" data-contribution="Artist" data-description="Collaborative exploration of noise music through loud, quirky soundscapes." data-url="https://bandcamp.com/EmbeddedPlayer/album=1581903700/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/" data-embed-type="bandcamp">
+                    <article class="work-item reveal" data-category="produced" data-title="Kutters" data-client="Kutters" data-contribution="Artist" data-description="Collaborative exploration of noise music through loud, quirky soundscapes." data-url="https://bandcamp.com/EmbeddedPlayer/album=1581903700/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/" data-embed-type="bandcamp">
                         <div class="work-image">
                             <img src="assets/images/container05.jpg" alt="Kutters Music" loading="lazy">
                             <div class="play-overlay" data-url="https://bandcamp.com/EmbeddedPlayer/album=1581903700/size=large/bgcol=ffffff/linkcol=0687f5/tracklist=false/transparent=true/">
@@ -385,12 +393,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Kutters</h3>
-                            <p>Kutters</p>
+                            <p>Noise music albums</p>
                         </div>
                     </article>
 
                     <!-- Rituals: Hypnotherapy -->
-                    <article class="work-item reveal liquid-glass" data-category="audio-cleanup" data-title="Rituals: Hypnotherapy" data-client="Rituals" data-contribution="Audio Cleanup & Mix" data-description="Performed audio cleanup and mix to meet the industry standard. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=5FppM1vHG0M&list=PLCOFYd3VDvK82tP8ORDPtXi7zg_ZrvQQY&index=1&t=1s/">
+                    <article class="work-item reveal" data-category="audio-cleanup" data-title="Rituals: Hypnotherapy" data-client="Rituals" data-contribution="Audio Cleanup & Mix" data-description="Performed audio cleanup and mix to meet the industry standard. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=5FppM1vHG0M&list=PLCOFYd3VDvK82tP8ORDPtXi7zg_ZrvQQY&index=1&t=1s/">
                         <div class="work-image">
                             <img src="assets/images/container12.jpg" alt="Rituals Hypnotherapy" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=5FppM1vHG0M&list=PLCOFYd3VDvK82tP8ORDPtXi7zg_ZrvQQY&index=1&t=1s/">
@@ -404,12 +412,12 @@
                         </div>
                         <div class="work-info">
                             <h3>Rituals: Hypnotherapy</h3>
-                            <p>Rituals</p>
+                            <p>Audio cleanup & mix</p>
                         </div>
                     </article>
 
                     <!-- Rituals: How to find your purpose -->
-                    <article class="work-item reveal liquid-glass" data-category="audio-cleanup" data-title="Rituals: How to find your purpose" data-client="Rituals" data-contribution="Audio Cleanup & Mix" data-description="Performed audio cleanup and did the final mix. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=kJ0hsBdU9s4&list=PLCOFYd3VDvK__6THjQPVlj5jefP-rkkMB/">
+                    <article class="work-item reveal" data-category="audio-cleanup" data-title="Rituals: How to find your purpose" data-client="Rituals" data-contribution="Audio Cleanup & Mix" data-description="Performed audio cleanup and did the final mix. Project completed for Heron Music." data-url="https://www.youtube.com/watch?v=kJ0hsBdU9s4&list=PLCOFYd3VDvK__6THjQPVlj5jefP-rkkMB/">
                         <div class="work-image">
                             <img src="assets/images/container14.jpg" alt="Rituals How to find your purpose" loading="lazy">
                             <div class="play-overlay" data-url="https://www.youtube.com/watch?v=kJ0hsBdU9s4&list=PLCOFYd3VDvK__6THjQPVlj5jefP-rkkMB/">
@@ -423,7 +431,7 @@
                         </div>
                         <div class="work-info">
                             <h3>Rituals: How to find your purpose</h3>
-                            <p>Rituals</p>
+                            <p>Audio cleanup & mix</p>
                         </div>
                     </article>
                 </div>
@@ -432,44 +440,50 @@
     </div>
 
     <!-- About Modal -->
-    <div class="about-modal-overlay" id="aboutModal" role="dialog" aria-modal="true" aria-label="About Sura">
-        <div class="about-modal liquid-glass">
-            <button class="about-modal-close" id="aboutModalClose" aria-label="Close">
+    <div class="about-modal-overlay" id="aboutModal">
+        <div class="about-modal">
+            <button class="about-modal-close" id="aboutModalClose">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 6L6 18M6 6l12 12"/>
                 </svg>
             </button>
             <div class="about-card">
                 <div class="about-card-left">
-                    <div class="about-photo">
-                        <img src="assets/images/image01.jpg" alt="Daniel Kuiters // Sura" loading="lazy">
-                    </div>
-                </div>
-                <div class="about-card-right">
                     <h2>Daniel Kuiters // Sura</h2>
                     <p class="about-subtitle">Music Composer & Sound Designer</p>
                     <p class="about-description">
-                        I create original music and sound design for video, ads, and media projects under the name Sura, a playful reference to my Dutch surname (Kuit means "calf," Sura means the same in Latin).
+                        I'm Daniel, an Amsterdam-based music producer working under the name Sura (a playful nod to my last name - Sura means "calf" in Latin, Kuit means "calf" in Dutch). I create original music and sound design for video, ads, and media projects.
                     </p>
                     <p class="about-description">
-                        With a background in Media Entertainment Management and 10 years of hands-on production experience, I work with a trusted network of musicians and creatives to deliver the right sonic identity for your project.
+                        My background combines Media Entertainment Management with 10 years of hands-on music production experience, plus I work with a solid network of musicians and creatives. This means I can help you nail the right vibe for your project.
                     </p>
                     <p class="about-description">
-                        Whether you have a clear vision or you're still exploring possibilities, I'm here to collaborate and make your project sound memorable.
+                        Got a clear idea of what you want sonically? Great, let's build it. Still figuring it out? Even better! I love that early exploration phase. Either way, I'm here to make your project sound memorable.
                     </p>
                     <div class="about-contact">
-                        <div class="about-contact-box">
-                            <span class="contact-header">let's connect</span>
-                            <div class="contact-details">
-                                <a href="mailto:listentosura@gmail.com" class="contact-link" title="Email">
-                                    listentosura@gmail.com
-                                </a>
-                                <span class="contact-divider">•</span>
-                                <a href="tel:+31617331873" class="contact-link" title="Phone">
-                                    +31 6 17 33 18 73
-                                </a>
-                            </div>
-                        </div>
+                        <a href="https://www.instagram.com/listentosura/" target="_blank" class="about-contact-link" title="Instagram">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+                            </svg>
+                        </a>
+                        <a href="mailto:listentosura@gmail.com" class="about-contact-link" title="Email">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                                <polyline points="22,6 12,13 2,6"/>
+                            </svg>
+                        </a>
+                        <a href="tel:+31617331873" class="about-contact-link" title="Phone">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/>
+                            </svg>
+                        </a>
+                    </div>
+                </div>
+                <div class="about-card-right">
+                    <div class="about-photo">
+                        <img src="assets/images/image01.jpg" alt="Daniel Kuiters // Sura" loading="lazy">
                     </div>
                 </div>
             </div>
@@ -477,21 +491,9 @@
     </div>
 
     <!-- Project Detail Modal -->
-    <div class="project-modal-overlay" id="projectModal" role="dialog" aria-modal="true" aria-label="Project details">
-        <div class="project-modal-nav-container">
-            <button class="project-modal-nav project-modal-prev" id="projectModalPrev" aria-label="Previous project">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <polyline points="15,18 9,12 15,6"/>
-                </svg>
-            </button>
-            <button class="project-modal-nav project-modal-next" id="projectModalNext" aria-label="Next project">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                    <polyline points="9,6 15,12 9,18"/>
-                </svg>
-            </button>
-        </div>
-        <div class="project-modal liquid-glass">
-            <button class="project-modal-close" id="projectModalClose" aria-label="Close">
+    <div class="project-modal-overlay" id="projectModal">
+        <div class="project-modal">
+            <button class="project-modal-close" id="projectModalClose">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                     <path d="M18 6L6 18M6 6l12 12"/>
                 </svg>

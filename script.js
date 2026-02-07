@@ -82,18 +82,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             ctx.putImageData(imageData, 0, 0);
 
-            // Draw floating particles with glow effect
+            // Draw floating particles with optimized rendering
+            ctx.fillStyle = 'rgba(183, 69, 70, 0.2)';
             particles.forEach(particle => {
                 ctx.beginPath();
                 ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
                 ctx.globalAlpha = particle.opacity;
-                ctx.shadowColor = 'rgba(183, 69, 70, 0.4)';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = 'rgba(183, 69, 70, 0.3)';
                 ctx.fill();
             });
-            ctx.shadowBlur = 0;
-            ctx.shadowColor = 'transparent';
             ctx.globalAlpha = 1;
         }
 
@@ -168,7 +164,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (aboutModal) {
             aboutModal.classList.remove('active');
             document.body.style.overflow = '';
-            statsAnimated = false; // Allow re-animation on next open
         }
     }
     
@@ -193,6 +188,12 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape' && aboutModal && aboutModal.classList.contains('active')) {
+            closeAboutModal();
+        }
+    });
+
     // ============================================
     // Scroll Reveal Animations
     // ============================================
@@ -214,16 +215,20 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 
     // ============================================
-    // Sticky Pill Filter Bar — detect when stuck
+    // Scroll Effect for Filter Bar
     // ============================================
-    const categoryFilterBar = document.getElementById('categoryFilterBar');
-    if (categoryFilterBar) {
-        const stickyOffset = 16; // matches CSS top: 1rem
-        const handleStickyCheck = throttle(function() {
-            const rect = categoryFilterBar.getBoundingClientRect();
-            categoryFilterBar.classList.toggle('is-sticky', rect.top <= stickyOffset + 1);
+    const categoryFilter = document.querySelector('.category-filter');
+
+    if (categoryFilter) {
+        const handleScroll = throttle(function() {
+            if (window.scrollY > 50) {
+                categoryFilter.classList.add('scrolled');
+            } else {
+                categoryFilter.classList.remove('scrolled');
+            }
         }, 100);
-        window.addEventListener('scroll', handleStickyCheck, { passive: true });
+
+        window.addEventListener('scroll', handleScroll, { passive: true });
     }
 
     // ============================================
@@ -256,17 +261,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 'Loredana - Oft Vertaut'
             ];
             
-            // Cache titles to avoid repeated DOM queries during sort
-            const itemsWithTitles = workItems.map(item => ({
-                el: item,
-                title: item.querySelector('h3')?.textContent || ''
-            }));
-            itemsWithTitles.sort((a, b) => {
-                const indexA = soundDesignOrder.indexOf(a.title);
-                const indexB = soundDesignOrder.indexOf(b.title);
+            const sortedItems = [...workItems].sort((a, b) => {
+                const titleA = a.querySelector('h3').textContent;
+                const titleB = b.querySelector('h3').textContent;
+                const indexA = soundDesignOrder.indexOf(titleA);
+                const indexB = soundDesignOrder.indexOf(titleB);
                 return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
             });
-            const sortedItems = itemsWithTitles.map(i => i.el);
             
             // Re-append items in new order
             sortedItems.forEach(item => workGrid.appendChild(item));
@@ -321,9 +322,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (filterDropdown) {
             filterDropdown.classList.remove('active');
         }
-
     }
-
+    
     // Desktop filter buttons
     filterButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -354,104 +354,57 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================
-    // Project Detail Modal (with navigation)
+    // Project Detail Modal
     // ============================================
     const projectModal = document.getElementById('projectModal');
     const projectModalClose = document.getElementById('projectModalClose');
-    const projectModalPrev = document.getElementById('projectModalPrev');
-    const projectModalNext = document.getElementById('projectModalNext');
     const projectVideoEmbed = document.getElementById('projectVideoEmbed');
-    const projectModalContent = document.querySelector('.project-modal-content');
     const projectTitle = document.querySelector('.project-title');
     const projectClient = document.querySelector('.project-client .meta-value');
     const projectDirector = document.querySelector('.project-director .meta-value');
     const projectSoundDesign = document.querySelector('.project-sound-design .meta-value');
     const projectContribution = document.querySelector('.project-contribution .meta-value');
     const projectDescription = document.querySelector('.project-description');
-
-    let currentProjectIndex = 0;
-
-    // Get currently visible (non-hidden) work items
-    function getVisibleWorkItems() {
-        return Array.from(document.querySelectorAll('.work-item:not(.hidden)'));
-    }
-
-    // Populate modal from a work-item element
-    function populateProjectModal(item) {
-        const title = item.dataset.title || '';
-        const client = item.dataset.client || '';
-        const director = item.dataset.director || '';
-        const soundDesign = item.dataset.soundDesign || '';
-        const contribution = item.dataset.contribution || '';
-        const description = item.dataset.description || '';
-        const url = item.dataset.url || '';
-
-        if (projectTitle) projectTitle.textContent = title;
-        if (projectClient) projectClient.textContent = client;
-        if (projectDirector) {
-            if (director) {
-                projectDirector.textContent = director;
-                projectDirector.parentElement.style.display = 'contents';
-            } else {
-                projectDirector.parentElement.style.display = 'none';
-            }
-        }
-        if (projectSoundDesign) {
-            if (soundDesign) {
-                projectSoundDesign.textContent = soundDesign;
-                projectSoundDesign.parentElement.style.display = 'contents';
-            } else {
-                projectSoundDesign.parentElement.style.display = 'none';
-            }
-        }
-        if (projectContribution) projectContribution.textContent = contribution;
-        if (projectDescription) projectDescription.textContent = description;
-
-        // Clear old video first, then set new with slight delay to force browser reload
-        if (projectVideoEmbed) {
-            projectVideoEmbed.src = 'about:blank';
-            if (url) {
-                setTimeout(function() {
-                    projectVideoEmbed.src = convertToEmbedUrl(url);
-                }, 50);
-            }
-        }
-    }
-
-    // Navigate to next/previous project with fade transition
-    function navigateProject(direction) {
-        const visibleItems = getVisibleWorkItems();
-        if (visibleItems.length <= 1) return;
-
-        // Fade out
-        if (projectModalContent) {
-            projectModalContent.classList.add('navigating');
-        }
-
-        setTimeout(function() {
-            // Calculate new index (wrapping)
-            currentProjectIndex = (currentProjectIndex + direction + visibleItems.length) % visibleItems.length;
-
-            // Populate with new item
-            populateProjectModal(visibleItems[currentProjectIndex]);
-
-            // Fade in
-            if (projectModalContent) {
-                projectModalContent.classList.remove('navigating');
-            }
-        }, 200);
-    }
-
+    
     // Open project modal on work item click
-    workItems.forEach(item => {
+    document.querySelectorAll('.work-item').forEach(item => {
         item.addEventListener('click', function(e) {
-            // Determine index within currently visible items
-            const visibleItems = getVisibleWorkItems();
-            currentProjectIndex = visibleItems.indexOf(this);
-            if (currentProjectIndex === -1) currentProjectIndex = 0;
-
-            populateProjectModal(this);
-
+            const title = this.dataset.title || '';
+            const client = this.dataset.client || '';
+            const director = this.dataset.director || '';
+            const soundDesign = this.dataset.soundDesign || '';
+            const contribution = this.dataset.contribution || '';
+            const description = this.dataset.description || '';
+            const url = this.dataset.url || '';
+            
+            // Update modal content
+            if (projectTitle) projectTitle.textContent = title;
+            if (projectClient) projectClient.textContent = client;
+            if (projectDirector) {
+                if (director) {
+                    projectDirector.textContent = director;
+                    projectDirector.parentElement.style.display = 'block';
+                } else {
+                    projectDirector.parentElement.style.display = 'none';
+                }
+            }
+            if (projectSoundDesign) {
+                if (soundDesign) {
+                    projectSoundDesign.textContent = soundDesign;
+                    projectSoundDesign.parentElement.style.display = 'block';
+                } else {
+                    projectSoundDesign.parentElement.style.display = 'none';
+                }
+            }
+            if (projectContribution) projectContribution.textContent = contribution;
+            if (projectDescription) projectDescription.textContent = description;
+            
+            // Set video embed
+            if (projectVideoEmbed && url) {
+                const embedUrl = convertToEmbedUrl(url);
+                projectVideoEmbed.src = embedUrl;
+            }
+            
             // Open modal
             if (projectModal) {
                 projectModal.classList.add('active');
@@ -459,21 +412,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
-
-    // Nav button click handlers
-    if (projectModalPrev) {
-        projectModalPrev.addEventListener('click', function(e) {
-            e.stopPropagation();
-            navigateProject(-1);
-        });
-    }
-    if (projectModalNext) {
-        projectModalNext.addEventListener('click', function(e) {
-            e.stopPropagation();
-            navigateProject(1);
-        });
-    }
-
+    
     // Close project modal
     function closeProjectModal() {
         if (projectModal) {
@@ -482,11 +421,11 @@ document.addEventListener('DOMContentLoaded', function() {
             document.body.style.overflow = '';
         }
     }
-
+    
     if (projectModalClose) {
         projectModalClose.addEventListener('click', closeProjectModal);
     }
-
+    
     if (projectModal) {
         projectModal.addEventListener('click', function(e) {
             if (e.target === projectModal) {
@@ -494,39 +433,173 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-
-    // Consolidated keyboard handler for all modals
+    
+    // Escape key to close
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') {
-            if (projectModal && projectModal.classList.contains('active')) {
-                closeProjectModal();
-            } else if (aboutModal && aboutModal.classList.contains('active')) {
-                closeAboutModal();
-            }
-        }
-        if (projectModal && projectModal.classList.contains('active')) {
-            if (e.key === 'ArrowLeft') {
-                e.preventDefault();
-                navigateProject(-1);
-            } else if (e.key === 'ArrowRight') {
-                e.preventDefault();
-                navigateProject(1);
-            }
+        if (e.key === 'Escape' && projectModal && projectModal.classList.contains('active')) {
+            closeProjectModal();
         }
     });
 
     // ============================================
-    // Play Button Delegation (triggers project modal)
+    // Video Modal
     // ============================================
+    const videoModal = document.getElementById('videoModal');
+    const videoEmbed = document.getElementById('videoEmbed');
+    const videoModalClose = document.getElementById('videoModalClose');
+    const videoErrorFallback = document.getElementById('videoErrorFallback');
+    const errorRetryBtn = document.getElementById('errorRetryBtn');
+    const errorDirectLink = document.getElementById('errorDirectLink');
+    
+    let currentVideoUrl = '';
+    let retryCount = 0;
+    const MAX_RETRIES = 3;
+    
+    // Convert URL to embed URL
+    function convertToEmbedUrl(url) {
+        // YouTube
+        if (url.includes('youtube.com') || url.includes('youtu.be')) {
+            let videoId = '';
+            if (url.includes('youtu.be')) {
+                videoId = url.split('/').pop();
+            } else {
+                const urlObj = new URL(url);
+                videoId = urlObj.searchParams.get('v') || url.split('v=')[1]?.split('&')[0] || '';
+            }
+            const timestamp = url.includes('t=') ? url.split('t=')[1].split('&')[0] : '';
+            return `https://www.youtube.com/embed/${videoId}${timestamp ? '?start=' + timestamp : ''}?rel=0&modestbranding=1`;
+        }
+        // Vimeo
+        if (url.includes('vimeo.com')) {
+            const videoId = url.split('/').pop();
+            return `https://player.vimeo.com/video/${videoId}`;
+        }
+        // Spotify
+        if (url.includes('spotify.com')) {
+            return url.replace('open.spotify.com/', 'open.spotify.com/embed/');
+        }
+        // Bandcamp
+        if (url.includes('bandcamp.com')) {
+            // If it's already an EmbeddedPlayer URL, return as-is
+            if (url.includes('EmbeddedPlayer')) {
+                return url;
+            }
+            // Otherwise try to convert regular Bandcamp URLs
+            return url.replace('album/', 'embed/album/');
+        }
+        return url;
+    }
+    
+    // Show error fallback
+    function showErrorFallback(url) {
+        if (videoEmbed && videoErrorFallback) {
+            videoEmbed.style.display = 'none';
+            videoErrorFallback.style.display = 'flex';
+            
+            // Set direct link
+            if (errorDirectLink) {
+                errorDirectLink.href = url;
+            }
+        }
+    }
+    
+    // Hide error fallback
+    function hideErrorFallback() {
+        if (videoEmbed && videoErrorFallback) {
+            videoEmbed.style.display = 'block';
+            videoErrorFallback.style.display = 'none';
+        }
+    }
+    
+    // Retry loading video
+    function retryYouTubeEmbed() {
+        if (retryCount >= MAX_RETRIES) {
+            console.log('Max retries reached for video');
+            return;
+        }
+        
+        retryCount++;
+        console.log(`Retrying video load (attempt ${retryCount}/${MAX_RETRIES})`);
+        
+        if (videoEmbed && currentVideoUrl) {
+            // Clear src and add timestamp to force reload
+            videoEmbed.src = '';
+            setTimeout(() => {
+                const embedUrl = convertToEmbedUrl(currentVideoUrl);
+                videoEmbed.src = embedUrl;
+            }, 500);
+        }
+    }
+    
+    // Handle YouTube iframe error
+    function handleVideoError() {
+        console.log('Video error detected, showing fallback');
+        showErrorFallback(currentVideoUrl);
+        
+        // Auto-retry after 2 seconds if YouTube
+        if (currentVideoUrl.includes('youtube') || currentVideoUrl.includes('youtu.be')) {
+            setTimeout(() => {
+                if (videoErrorFallback && videoErrorFallback.style.display !== 'none') {
+                    console.log('Auto-retrying video after error');
+                    hideErrorFallback();
+                    retryYouTubeEmbed();
+                }
+            }, 2000);
+        }
+    }
+    
+    // Open project modal on play button click
     document.querySelectorAll('.play-btn').forEach(btn => {
         btn.addEventListener('click', function(e) {
             e.preventDefault();
             e.stopPropagation();
+            
+            // Find parent work-item and trigger its click handler
             const workItem = this.closest('.work-item');
             if (workItem) {
                 workItem.click();
             }
         });
+    });
+    
+    // Retry button click
+    if (errorRetryBtn) {
+        errorRetryBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideErrorFallback();
+            retryYouTubeEmbed();
+        });
+    }
+    
+    // Close modal
+    function closeModal() {
+        if (videoModal && videoEmbed) {
+            videoModal.classList.remove('active');
+            videoEmbed.src = '';
+            hideErrorFallback();
+            document.body.style.overflow = '';
+            currentVideoUrl = '';
+            retryCount = 0;
+        }
+    }
+    
+    if (videoModalClose) {
+        videoModalClose.addEventListener('click', closeModal);
+    }
+    
+    if (videoModal) {
+        videoModal.addEventListener('click', function(e) {
+            if (e.target === videoModal) {
+                closeModal();
+            }
+        });
+    }
+    
+    // Escape key to close
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            closeModal();
+        }
     });
 
     // ============================================
@@ -577,7 +650,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
         }, { threshold: 0.3 });
         
-        modalObserver.observe(aboutModal);
+        modalObserver.observe(document.querySelector('.about-modal'));
     }
-
 });
