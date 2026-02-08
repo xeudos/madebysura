@@ -227,6 +227,25 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // ============================================
+    // Sticky Header for Mobile
+    // ============================================
+    const header = document.querySelector('.header');
+    if (header) {
+        const handleHeaderSticky = throttle(function() {
+            if (window.innerWidth <= 900) {
+                header.classList.toggle('is-sticky', window.scrollY > 10);
+            } else {
+                header.classList.remove('is-sticky');
+            }
+        }, 100);
+        
+        window.addEventListener('scroll', handleHeaderSticky, { passive: true });
+        window.addEventListener('resize', handleHeaderSticky, { passive: true });
+        // Initial check
+        handleHeaderSticky();
+    }
+
+    // ============================================
     // Category Filtering
     // ============================================
     const filterButtons = document.querySelectorAll('.filter-btn');

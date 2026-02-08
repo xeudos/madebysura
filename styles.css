@@ -16,15 +16,15 @@
     --color-accent-dark: #8b3a3b;
     --color-accent-gold: #c9a962;
     --color-border: rgba(255, 255, 255, 0.4);
-    
+
     --font-main: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-display: 'Bricolage Grotesque', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-mono: 'DM Mono', monospace;
-    
+
     --transition-fast: 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-medium: 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --transition-slow: 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    
+
     --spacing-xs: 0.5rem;
     --spacing-sm: 1rem;
     --spacing-md: 2rem;
@@ -50,19 +50,19 @@
 
     /* Specular edge highlights — warm-tinted */
     --glass-specular: inset 0 1px 0 0 rgba(255, 250, 245, 0.85),
-                      inset 0 -1px 0 0 rgba(255, 248, 240, 0.25),
-                      inset 1px 0 0 0 rgba(255, 250, 245, 0.35),
-                      inset -1px 0 0 0 rgba(255, 250, 245, 0.35);
+        inset 0 -1px 0 0 rgba(255, 248, 240, 0.25),
+        inset 1px 0 0 0 rgba(255, 250, 245, 0.35),
+        inset -1px 0 0 0 rgba(255, 250, 245, 0.35);
     --glass-specular-strong: inset 0 2px 1px 0 rgba(255, 250, 242, 0.9),
-                             inset 0 -1px 1px 0 rgba(255, 248, 240, 0.3),
-                             inset 2px 0 1px 0 rgba(255, 250, 242, 0.4),
-                             inset -2px 0 1px 0 rgba(255, 250, 242, 0.4);
+        inset 0 -1px 1px 0 rgba(255, 248, 240, 0.3),
+        inset 2px 0 1px 0 rgba(255, 250, 242, 0.4),
+        inset -2px 0 1px 0 rgba(255, 250, 242, 0.4);
 
     /* Depth shadows — deeper burgundy undertones */
     --glass-shadow: 0 8px 32px rgba(139, 58, 59, 0.12),
-                    0 2px 8px rgba(139, 58, 59, 0.06);
+        0 2px 8px rgba(139, 58, 59, 0.06);
     --glass-shadow-elevated: 0 24px 64px rgba(139, 58, 59, 0.18),
-                             0 6px 20px rgba(139, 58, 59, 0.08);
+        0 6px 20px rgba(139, 58, 59, 0.08);
 
     /* Radii */
     --glass-radius: 20px;
@@ -77,7 +77,7 @@
     --accent-border: rgba(183, 69, 70, 0.3);
     --accent-glass-bg: rgba(183, 69, 70, 0.08);
     --accent-glass-bg-strong: rgba(183, 69, 70, 0.14);
-    
+
     /* Gold accent */
     --gold-glow: 0 0 20px rgba(201, 169, 98, 0.25);
     --gold-border: rgba(201, 169, 98, 0.3);
@@ -85,7 +85,9 @@
 }
 
 /* Reset */
-*, *::before, *::after {
+*,
+*::before,
+*::after {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
@@ -137,17 +139,18 @@ body::before {
     right: 0;
     height: 2px;
     background: linear-gradient(90deg,
-        transparent 0%,
-        var(--color-accent-gold) 20%,
-        var(--color-accent) 50%,
-        var(--color-accent-gold) 80%,
-        transparent 100%
-    );
+            transparent 0%,
+            var(--color-accent-gold) 20%,
+            var(--color-accent) 50%,
+            var(--color-accent-gold) 80%,
+            transparent 100%);
     z-index: 9999;
     opacity: 0.8;
 }
 
-h1, h2, h3 {
+h1,
+h2,
+h3 {
     font-family: var(--font-display);
 }
 
@@ -162,7 +165,9 @@ button {
     font-family: inherit;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
     cursor: text;
 }
 
@@ -195,14 +200,12 @@ input, textarea, select {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 255, 255, 0.4) 0%,
-        rgba(255, 255, 255, 0.05) 40%,
-        transparent 50%,
-        rgba(255, 255, 255, 0.02) 60%,
-        rgba(255, 255, 255, 0.15) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 255, 255, 0.4) 0%,
+            rgba(255, 255, 255, 0.05) 40%,
+            transparent 50%,
+            rgba(255, 255, 255, 0.02) 60%,
+            rgba(255, 255, 255, 0.15) 100%);
     pointer-events: none;
     z-index: 1;
 }
@@ -211,8 +214,15 @@ input, textarea, select {
    Glass Shimmer Animation
    ============================================ */
 @keyframes glassShimmer {
-    0%, 100% { background-position: -200% center; }
-    50% { background-position: 200% center; }
+
+    0%,
+    100% {
+        background-position: -200% center;
+    }
+
+    50% {
+        background-position: 200% center;
+    }
 }
 
 .glass-shimmer::before {
@@ -220,16 +230,14 @@ input, textarea, select {
     position: absolute;
     inset: 0;
     border-radius: inherit;
-    background: linear-gradient(
-        105deg,
-        transparent 35%,
-        rgba(255, 255, 255, 0.12) 42%,
-        rgba(255, 255, 255, 0.22) 48%,
-        rgba(201, 169, 98, 0.08) 50%,
-        rgba(183, 69, 70, 0.06) 52%,
-        rgba(255, 255, 255, 0.22) 58%,
-        transparent 65%
-    );
+    background: linear-gradient(105deg,
+            transparent 35%,
+            rgba(255, 255, 255, 0.12) 42%,
+            rgba(255, 255, 255, 0.22) 48%,
+            rgba(201, 169, 98, 0.08) 50%,
+            rgba(183, 69, 70, 0.06) 52%,
+            rgba(255, 255, 255, 0.22) 58%,
+            transparent 65%);
     background-size: 250% 100%;
     animation: glassShimmer 8s ease-in-out infinite;
     pointer-events: none;
@@ -276,6 +284,7 @@ input, textarea, select {
     height: auto;
     display: block;
     filter: drop-shadow(0 0 20px rgba(183, 69, 70, 0.08));
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .header-subtitle {
@@ -318,22 +327,60 @@ input, textarea, select {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 44px;
+    height: 44px;
     border-radius: 50%;
+    /* Perfect circle */
+
+    /* Liquid Essence Glass Style */
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.4) 0%,
+            rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(var(--glass-blur-light)) saturate(160%);
+    -webkit-backdrop-filter: blur(var(--glass-blur-light)) saturate(160%);
+    border: var(--glass-border-subtle);
+    box-shadow:
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.6),
+        0 4px 10px rgba(0, 0, 0, 0.03);
+
     color: var(--color-text-muted);
-    background: rgba(0, 0, 0, 0.03);
-    border: 1px solid rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    /* Bouncy transition */
     cursor: pointer;
     text-decoration: none;
+    position: relative;
+    overflow: hidden;
+}
+
+.header-icons .contact-link::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(255, 255, 255, 0.8) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    mix-blend-mode: overlay;
 }
 
 .header-icons .contact-link:hover {
     color: var(--color-accent);
-    background: rgba(183, 69, 70, 0.06);
-    border-color: rgba(183, 69, 70, 0.2);
-    transform: translateY(-2px);
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.6) 0%,
+            rgba(255, 255, 255, 0.2) 100%);
+    border-color: rgba(183, 69, 70, 0.25);
+    transform: translateY(-2px) scale(1.05);
+    box-shadow:
+        0 8px 20px rgba(183, 69, 70, 0.15),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+}
+
+.header-icons .contact-link:hover::after {
+    opacity: 0.4;
+}
+
+.header-icons .contact-link:active {
+    transform: translateY(0) scale(0.95);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
 }
 
 .header-right {
@@ -441,32 +488,78 @@ input, textarea, select {
 /* Mobile Header */
 @media (max-width: 900px) {
     .header {
-        padding: 1.25rem 1.5rem;
+        padding: 1rem 1.5rem;
+        position: sticky;
+        top: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+    }
+
+    .header.is-sticky {
+        padding: 0.5rem 1.25rem;
+        /* Liquid Essence Glass Style */
+        background: linear-gradient(135deg,
+                rgba(255, 248, 245, 0.65) 0%,
+                rgba(255, 255, 255, 0.4) 100%);
+        backdrop-filter: blur(var(--glass-blur-light)) saturate(120%);
+        -webkit-backdrop-filter: blur(var(--glass-blur-light)) saturate(120%);
+        border-bottom: var(--glass-border-subtle);
+        box-shadow: var(--glass-specular), 0 4px 20px rgba(0, 0, 0, 0.05);
+    }
+
+    .header.is-sticky .header-logo-img {
+        width: 80px;
+        /* Smaller logo on scroll */
+        max-width: 80px;
     }
 
     .header-content {
-        flex-wrap: wrap;
-        gap: 0.75rem;
+        display: contents;
+        /* Flattens the structure so children participate in header flex */
+    }
+
+    .header-brand {
+        order: 1;
+        flex: 0 0 auto;
+        gap: 0;
+    }
+
+    .header-subtitle {
+        display: none;
+        /* Hide subtitle to save space */
     }
 
     .header-tagline {
         display: none;
     }
 
-    .header-icons {
-        margin-left: auto;
-    }
-
     .header-right {
+        order: 2;
         display: flex;
         justify-content: center;
-        gap: 0.75rem;
+        flex: 1;
+        padding-top: 6px;
+        /* Nudge button slightly down */
+    }
+
+    .header-icons {
+        order: 3;
+        flex: 0 0 auto;
+        margin-left: 0;
+        gap: 0.5rem;
     }
 
     .filter-dropdown {
         display: block;
     }
 
+    .filter-toggle {
+        padding: 0.5rem 0.85rem;
+        /* Slight compacting */
+    }
 }
 
 @media (max-width: 600px) {
@@ -485,8 +578,8 @@ input, textarea, select {
     }
 
     .header-icons .contact-link {
-        width: 32px;
-        height: 32px;
+        width: 38px;
+        height: 38px;
     }
 
     .filter-toggle {
@@ -544,7 +637,7 @@ input, textarea, select {
     backdrop-filter: blur(var(--glass-blur-heavy)) saturate(140%) brightness(102%);
     -webkit-backdrop-filter: blur(var(--glass-blur-heavy)) saturate(140%) brightness(102%);
     border-radius: 32px;
-    box-shadow: 
+    box-shadow:
         0 4px 0 0 rgba(183, 69, 70, 0.1),
         0 20px 60px rgba(0, 0, 0, 0.08),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
@@ -615,8 +708,17 @@ input, textarea, select {
 }
 
 @keyframes pulse-slow {
-    0%, 100% { transform: scale(1); opacity: 0.8; }
-    50% { transform: scale(1.05); opacity: 1; }
+
+    0%,
+    100% {
+        transform: scale(1);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: scale(1.05);
+        opacity: 1;
+    }
 }
 
 .about-photo {
@@ -626,7 +728,7 @@ input, textarea, select {
     border-radius: 24px;
     overflow: hidden;
     border: 3px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 
+    box-shadow:
         0 20px 50px rgba(0, 0, 0, 0.1),
         0 8px 20px rgba(183, 69, 70, 0.15),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.9),
@@ -636,7 +738,7 @@ input, textarea, select {
 
 .about-photo:hover {
     transform: scale(1.02);
-    box-shadow: 
+    box-shadow:
         0 25px 60px rgba(0, 0, 0, 0.12),
         0 12px 30px rgba(183, 69, 70, 0.2),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
@@ -817,7 +919,7 @@ input, textarea, select {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     color: var(--color-text-muted);
     z-index: 10;
-    box-shadow: 
+    box-shadow:
         0 4px 12px rgba(0, 0, 0, 0.05),
         inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
 }
@@ -831,7 +933,7 @@ input, textarea, select {
 }
 
 /* Staggered animation for modal content */
-.about-card-right > * {
+.about-card-right>* {
     opacity: 0;
     transform: translateY(20px);
 }
@@ -926,36 +1028,36 @@ input, textarea, select {
         width: 90%;
         max-height: 92vh;
     }
-    
+
     .about-card {
         grid-template-columns: 1fr;
         gap: 2.5rem;
         padding: 2.5rem 2rem;
     }
-    
+
     .about-card-left {
         order: -1;
     }
-    
+
     .about-card-left::before {
         width: 200px;
         height: 200px;
     }
-    
+
     .about-photo {
         width: 200px;
         height: 240px;
         border-radius: 18px;
     }
-    
+
     .about-modal h2 {
         font-size: 2.2rem;
     }
-    
+
     .about-description {
         font-size: 1rem;
     }
-    
+
     .about-card-right::before {
         font-size: 5rem;
         top: -10px;
@@ -968,7 +1070,7 @@ input, textarea, select {
         max-height: 94vh;
         border-radius: 24px;
     }
-    
+
     .about-card {
         display: flex;
         flex-direction: column;
@@ -977,65 +1079,65 @@ input, textarea, select {
         padding: 2rem 1.5rem;
         text-align: center;
     }
-    
+
     .about-card-left {
         order: -1;
     }
-    
+
     .about-card-left::before {
         width: 160px;
         height: 160px;
     }
-    
+
     .about-photo {
         width: 150px;
         height: 180px;
         border-radius: 14px;
         transform: rotate(0deg);
     }
-    
+
     .about-modal h2 {
         font-size: 1.8rem;
         letter-spacing: -1px;
     }
-    
+
     .about-modal h2::after {
         left: 50%;
         transform: translateX(-50%);
     }
-    
+
     .about-subtitle {
         margin-top: 1.2rem;
         font-size: 0.75rem;
         letter-spacing: 2px;
     }
-    
+
     .about-description {
         font-size: 0.95rem;
         text-align: center;
     }
-    
+
     .about-card-right::before {
         display: none;
     }
-    
+
     .about-contact {
         flex-direction: column;
         align-items: center;
         width: 100%;
         gap: 0.75rem;
     }
-    
+
     .about-contact-box {
         width: 100%;
         max-width: 280px;
         text-align: center;
     }
-    
+
     .contact-details {
         justify-content: center;
     }
-    
+
     .about-modal-close {
         top: 1rem;
         right: 1rem;
@@ -1043,7 +1145,7 @@ input, textarea, select {
         height: 44px;
         border-radius: 12px;
     }
-    
+
     .about-modal .stats {
         flex-direction: row;
         justify-content: center;
@@ -1055,7 +1157,7 @@ input, textarea, select {
     .about-modal h2 {
         font-size: 1.5rem;
     }
-    
+
     .about-modal .stat-number {
         font-size: 1.8rem;
     }
@@ -1285,29 +1387,29 @@ input, textarea, select {
         max-height: 90vh;
         border-radius: 16px;
     }
-    
+
     .project-modal-content {
         flex-direction: column;
     }
-    
+
     .project-modal-video {
         width: 100%;
         aspect-ratio: 16/9;
     }
-    
+
     .project-modal-info {
         width: 100%;
         padding: var(--spacing-md);
     }
-    
+
     .project-title {
         font-size: 1.5rem;
     }
-    
+
     .project-meta {
         padding: 1rem;
     }
-    
+
     .project-description {
         font-size: 0.95rem;
     }
@@ -1337,17 +1439,15 @@ input, textarea, select {
     border-radius: var(--glass-radius-pill);
 
     /* Liquid glass v2.0 */
-    background: linear-gradient(
-        135deg,
-        rgba(255, 248, 245, 0.55) 0%,
-        rgba(245, 235, 233, 0.5) 50%,
-        rgba(255, 248, 242, 0.55) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.55) 0%,
+            rgba(245, 235, 233, 0.5) 50%,
+            rgba(255, 248, 242, 0.55) 100%);
     backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(var(--glass-brightness));
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(180%) brightness(var(--glass-brightness));
     border: var(--glass-border-subtle);
     box-shadow: var(--glass-specular), var(--glass-shadow),
-                0 0 0 0.5px rgba(255, 255, 255, 0.3);
+        0 0 0 0.5px rgba(255, 255, 255, 0.3);
 
     /* Sticky on scroll */
     position: sticky;
@@ -1358,14 +1458,12 @@ input, textarea, select {
 
 /* Enhanced glass when stuck to top */
 .category-filter-bar.is-sticky {
-    background: linear-gradient(
-        135deg,
-        rgba(255, 248, 245, 0.75) 0%,
-        rgba(248, 238, 236, 0.7) 50%,
-        rgba(255, 248, 242, 0.75) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.75) 0%,
+            rgba(248, 238, 236, 0.7) 50%,
+            rgba(255, 248, 242, 0.75) 100%);
     box-shadow: var(--glass-specular-strong), var(--glass-shadow-elevated),
-                0 0 0 0.5px rgba(255, 255, 255, 0.4);
+        0 0 0 0.5px rgba(255, 255, 255, 0.4);
 }
 
 @media (max-width: 900px) {
@@ -1381,11 +1479,9 @@ input, textarea, select {
     padding: 0.5rem 1.15rem;
     border: var(--glass-border-subtle);
     border-radius: var(--glass-radius-pill);
-    background: linear-gradient(
-        135deg,
-        rgba(255, 248, 245, 0.35) 0%,
-        rgba(248, 238, 236, 0.3) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.35) 0%,
+            rgba(248, 238, 236, 0.3) 100%);
     backdrop-filter: blur(var(--glass-blur-light)) saturate(160%);
     -webkit-backdrop-filter: blur(var(--glass-blur-light)) saturate(160%);
     font-family: var(--font-mono);
@@ -1402,11 +1498,9 @@ input, textarea, select {
 
 .filter-btn:hover {
     color: var(--color-accent);
-    background: linear-gradient(
-        135deg,
-        rgba(183, 69, 70, 0.1) 0%,
-        rgba(183, 69, 70, 0.06) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(183, 69, 70, 0.1) 0%,
+            rgba(183, 69, 70, 0.06) 100%);
     border-color: var(--accent-border);
     box-shadow: var(--glass-specular), var(--accent-glow-subtle);
 }
@@ -1417,14 +1511,14 @@ input, textarea, select {
     color: var(--color-accent);
     font-weight: 600;
     box-shadow: var(--glass-specular-strong), var(--accent-glow),
-                0 0 20px rgba(201, 169, 98, 0.08);
+        0 0 20px rgba(201, 169, 98, 0.08);
 }
 
 .filter-btn.active:hover {
     background: linear-gradient(135deg, rgba(183, 69, 70, 0.2) 0%, rgba(139, 58, 59, 0.16) 100%);
     border-color: rgba(183, 69, 70, 0.5);
     box-shadow: var(--glass-specular-strong), var(--accent-glow-strong),
-                0 0 25px rgba(201, 169, 98, 0.12);
+        0 0 25px rgba(201, 169, 98, 0.12);
 }
 
 /* Vertical Grid */
@@ -1442,19 +1536,17 @@ input, textarea, select {
     opacity: 1;
     border-radius: var(--glass-radius);
     overflow: hidden;
-    background: linear-gradient(
-        135deg,
-        rgba(255, 248, 245, 0.55) 0%,
-        rgba(245, 230, 230, 0.4) 50%,
-        rgba(255, 248, 242, 0.5) 100%
-    );
+    background: linear-gradient(135deg,
+            rgba(255, 248, 245, 0.55) 0%,
+            rgba(245, 230, 230, 0.4) 50%,
+            rgba(255, 248, 242, 0.5) 100%);
     backdrop-filter: blur(var(--glass-blur)) saturate(170%);
     -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(170%);
     border: var(--glass-border-subtle);
     box-shadow: var(--glass-specular), var(--glass-shadow);
     transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-                border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+        border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .work-item.hidden {
@@ -1467,9 +1559,9 @@ input, textarea, select {
     transform: translateY(-8px) scale(1.01);
     border-color: rgba(183, 69, 70, 0.35);
     box-shadow: var(--glass-specular-strong),
-                var(--glass-shadow-elevated),
-                var(--accent-glow),
-                0 0 30px rgba(201, 169, 98, 0.1);
+        var(--glass-shadow-elevated),
+        var(--accent-glow),
+        0 0 30px rgba(201, 169, 98, 0.1);
 }
 
 .work-image {
@@ -1577,11 +1669,9 @@ input, textarea, select {
     left: 0;
     right: 0;
     padding: 0.85rem 1.25rem;
-    background: linear-gradient(
-        180deg,
-        rgba(255, 250, 248, 0.65) 0%,
-        rgba(250, 240, 238, 0.75) 100%
-    );
+    background: linear-gradient(180deg,
+            rgba(255, 250, 248, 0.65) 0%,
+            rgba(250, 240, 238, 0.75) 100%);
     backdrop-filter: blur(24px) saturate(180%);
     -webkit-backdrop-filter: blur(24px) saturate(180%);
     border-top: 1px solid rgba(255, 255, 255, 0.4);
@@ -1622,6 +1712,7 @@ input, textarea, select {
         opacity: 0;
         transform: translateY(20px);
     }
+
     to {
         opacity: 1;
         transform: translateY(0);
@@ -1633,6 +1724,7 @@ input, textarea, select {
         opacity: 1;
         transform: translateY(0);
     }
+
     to {
         opacity: 0;
         transform: translateY(-20px);
@@ -1695,7 +1787,7 @@ input, textarea, select {
     overflow: hidden;
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5),
-                inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.15);
 }
 
 .video-modal-video iframe {
@@ -1813,6 +1905,7 @@ input, textarea, select {
         grid-template-columns: repeat(2, 1fr);
         gap: 1.5rem;
     }
+
     .work-info h3 {
         font-size: 1.2rem;
     }
@@ -1871,12 +1964,15 @@ input, textarea, select {
         grid-template-columns: 1fr;
         gap: 1.5rem;
     }
+
     .work-item:hover {
         transform: translateY(-6px) scale(1.01);
     }
+
     .work-info {
         padding: 0.75rem 1rem;
     }
+
     .work-info h3 {
         font-size: 1.15rem;
     }
@@ -1886,7 +1982,7 @@ input, textarea, select {
     .work-info h3 {
         font-size: 1rem;
     }
-    
+
     .about-modal .stats {
         flex-direction: column;
         gap: var(--spacing-md);
@@ -1901,10 +1997,12 @@ input, textarea, select {
         backdrop-filter: none;
         -webkit-backdrop-filter: none;
     }
+
     .work-item .work-info {
         transform: none;
         opacity: 1;
     }
+
     .play-button {
         transform: scale(0.85);
         color: var(--color-accent);
@@ -1917,6 +2015,7 @@ input, textarea, select {
 
 /* Fallback for browsers without backdrop-filter */
 @supports not (backdrop-filter: blur(1px)) {
+
     .liquid-glass,
     .header,
     .work-item,
@@ -1925,12 +2024,15 @@ input, textarea, select {
         background: rgba(255, 255, 255, 0.95);
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
     }
+
     .filter-menu {
         background: rgba(255, 255, 255, 0.98);
     }
+
     .filter-btn {
         background: rgba(245, 245, 245, 0.9);
     }
+
     .filter-btn.active {
         background: rgba(183, 69, 70, 0.15);
     }
@@ -1950,12 +2052,15 @@ input, textarea, select {
     .glass-shimmer::before {
         animation: none;
     }
+
     .liquid-glass::after {
         display: none;
     }
+
     .work-item {
         transition: opacity 0.2s ease;
     }
+
     .work-item:hover {
         transform: none;
     }
