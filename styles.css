@@ -1897,7 +1897,9 @@ input, textarea, select {
 @media (hover: none) {
     .play-overlay {
         opacity: 1;
-        background: rgba(0, 0, 0, 0.1);
+        background: rgba(0, 0, 0, 0.05);
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
     }
     .work-item .work-info {
         transform: none;
