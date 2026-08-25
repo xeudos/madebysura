@@ -1,7 +1,4 @@
-/* ============================================
-   Sura Portfolio v2.0 - Vertical Scroll JavaScript
-   Noise Particles, Category Filtering, Video Modal
-   ============================================ */
+/* Made by Sura — Studio Ledger interactions */
 
 document.addEventListener('DOMContentLoaded', function() {
     // ============================================
@@ -19,63 +16,67 @@ document.addEventListener('DOMContentLoaded', function() {
         };
     }
 
-    // ============================================
-    // About Modal
-    // ============================================
-    const aboutBtnHeader = document.getElementById('aboutBtnHeader');
-    const aboutModal = document.getElementById('aboutModal');
-    const aboutModalClose = document.getElementById('aboutModalClose');
-    
-    function openAboutModal() {
-        if (aboutModal) {
-            aboutModal.classList.add('active');
-            document.body.style.overflow = 'hidden';
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    const previewIframe = document.querySelector('[data-autoplay-preview]');
+    if (previewIframe && !prefersReducedMotion) {
+        const loadPreview = () => {
+            if (!previewIframe.hasAttribute('src')) previewIframe.src = previewIframe.dataset.src;
+        };
+        const unloadPreview = () => {
+            if (!previewIframe.hasAttribute('src')) return;
+            previewIframe.src = 'about:blank';
+            previewIframe.removeAttribute('src');
+        };
+
+        if ('IntersectionObserver' in window) {
+            const previewObserver = new IntersectionObserver(entries => {
+                entries.forEach(entry => entry.isIntersecting ? loadPreview() : unloadPreview());
+            }, { threshold: .25 });
+            previewObserver.observe(previewIframe.closest('.selected-work-card'));
+        } else {
+            loadPreview();
         }
     }
-    
-    function closeAboutModal() {
-        if (aboutModal) {
-            aboutModal.classList.remove('active');
-            document.body.style.overflow = '';
-            statsAnimated = false; // Allow re-animation on next open
-        }
-    }
-    
-    if (aboutBtnHeader) {
-        aboutBtnHeader.addEventListener('click', openAboutModal);
-    }
-    
-    if (aboutModalClose) {
-        aboutModalClose.addEventListener('click', closeAboutModal);
-    }
-    
-    if (aboutModal) {
-        aboutModal.addEventListener('click', function(e) {
-            if (e.target === aboutModal) {
-                closeAboutModal();
-            }
+
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', event => {
+            const href = link.getAttribute('href');
+            if (!href || href === '#') return;
+
+            const target = document.querySelector(href);
+            if (!target) return;
+
+            event.preventDefault();
+            target.scrollIntoView({
+                behavior: prefersReducedMotion ? 'auto' : 'smooth',
+                block: 'start'
+            });
         });
-    }
+    });
     
     // ============================================
     // Scroll Reveal Animations
     // ============================================
     const revealElements = document.querySelectorAll('.reveal');
     
-    const revealObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
+    if (prefersReducedMotion || !('IntersectionObserver' in window)) {
+        revealElements.forEach(el => el.classList.add('visible'));
+    } else {
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    revealObserver.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
         });
-    }, {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    });
-    
-    revealElements.forEach(el => {
-        revealObserver.observe(el);
-    });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+    }
 
     // ============================================
     // Sticky Pill Filter Bar — detect when stuck
@@ -104,8 +105,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Store original order of items
     const originalWorkItems = [...workItems];
     
-    function getItemCategory(item) {
-        return item.dataset.category || '';
+    function getItemCategories(item) {
+        return [item.dataset.category, item.dataset.categorySecondary].filter(Boolean);
     }
     
     function sortWorkItems(category) {
@@ -171,8 +172,8 @@ document.addEventListener('DOMContentLoaded', function() {
         // Filter work items
         const currentItems = Array.from(workGrid.querySelectorAll('.work-item'));
         currentItems.forEach(item => {
-            const itemCategory = getItemCategory(item);
-            const shouldShow = category === 'all' || itemCategory === category;
+            const categories = getItemCategories(item);
+            const shouldShow = category === 'all' || categories.includes(category);
             
             if (shouldShow) {
                 item.classList.remove('hidden');
@@ -225,6 +226,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const projectModalPrev = document.getElementById('projectModalPrev');
     const projectModalNext = document.getElementById('projectModalNext');
     const projectVideoEmbed = document.getElementById('projectVideoEmbed');
+    const projectModalVideo = document.querySelector('.project-modal-video');
     const projectModalContent = document.querySelector('.project-modal-content');
     const projectTitle = document.querySelector('.project-title');
     const projectClient = document.querySelector('.project-client .meta-value');
@@ -232,12 +234,25 @@ document.addEventListener('DOMContentLoaded', function() {
     const projectSoundDesign = document.querySelector('.project-sound-design .meta-value');
     const projectContribution = document.querySelector('.project-contribution .meta-value');
     const projectDescription = document.querySelector('.project-description');
+    const projectExternal = document.getElementById('projectExternal');
 
     let currentProjectIndex = 0;
 
-    // Get currently visible (non-hidden) work items
+    const featuredModalOrder = [
+        'ING: Money Laundering',
+        'Zo veel Rotterdam',
+        'Bruut Showreel 2025'
+    ];
+
+    // Keep the opening modal sequence aligned with the homepage hierarchy,
+    // while preserving the grid order for every other visible project.
     function getVisibleWorkItems() {
-        return Array.from(document.querySelectorAll('.work-item:not(.hidden)'));
+        const visibleItems = Array.from(document.querySelectorAll('.work-item:not(.hidden)'));
+        const featuredItems = visibleItems
+            .filter(item => featuredModalOrder.indexOf(item.dataset.title) !== -1)
+            .sort((a, b) => featuredModalOrder.indexOf(a.dataset.title) - featuredModalOrder.indexOf(b.dataset.title));
+        const remainingItems = visibleItems.filter(item => featuredModalOrder.indexOf(item.dataset.title) === -1);
+        return [...featuredItems, ...remainingItems];
     }
 
     // Convert a URL to an embeddable format
@@ -264,8 +279,8 @@ document.addEventListener('DOMContentLoaded', function() {
             return 'https://player.vimeo.com/video/' + vimeoMatch[1];
         }
 
-        // Spotify: open.spotify.com/album/ID or /artist/ID or /track/ID
-        const spotifyMatch = url.match(/open\.spotify\.com\/(album|artist|track)\/([\w]+)/);
+        // Spotify: open.spotify.com/album/ID, /artist/ID, /track/ID or /episode/ID
+        const spotifyMatch = url.match(/open\.spotify\.com\/(album|artist|track|episode)\/([\w]+)/);
         if (spotifyMatch) {
             return 'https://open.spotify.com/embed/' + spotifyMatch[1] + '/' + spotifyMatch[2];
         }
@@ -282,28 +297,30 @@ document.addEventListener('DOMContentLoaded', function() {
         const contribution = item.dataset.contribution || '';
         const description = item.dataset.description || '';
         const url = item.dataset.url || '';
+        const embedType = item.dataset.embedType || '';
+        const externalLabel = item.dataset.externalLabel || '';
+
+        function setMetaValue(element, value) {
+            if (!element) return;
+            const metaRow = element.closest('p');
+            element.textContent = value || '';
+            if (metaRow) metaRow.hidden = !value;
+        }
 
         if (projectTitle) projectTitle.textContent = title;
-        if (projectClient) projectClient.textContent = client;
-        if (projectDirector) {
-            if (director) {
-                projectDirector.textContent = director;
-                projectDirector.parentElement.style.display = 'contents';
-            } else {
-                projectDirector.parentElement.style.display = 'none';
-            }
-        }
-        if (projectSoundDesign) {
-            if (soundDesign) {
-                projectSoundDesign.textContent = soundDesign;
-                projectSoundDesign.parentElement.style.display = 'contents';
-            } else {
-                projectSoundDesign.parentElement.style.display = 'none';
-            }
-        }
-        if (projectContribution) projectContribution.textContent = contribution;
+        setMetaValue(projectClient, client);
+        setMetaValue(projectDirector, director);
+        setMetaValue(projectSoundDesign, soundDesign);
+        setMetaValue(projectContribution, contribution);
         if (projectDescription) projectDescription.textContent = description;
-
+        if (projectModalVideo) {
+            projectModalVideo.classList.toggle('spotify-episode', embedType === 'spotify-episode');
+        }
+        if (projectExternal) {
+            projectExternal.hidden = !externalLabel || !url;
+            projectExternal.href = url || '#';
+            projectExternal.textContent = externalLabel;
+        }
         // Clear old video first, then set new with slight delay to force browser reload
         if (projectVideoEmbed) {
             projectVideoEmbed.src = 'about:blank';
@@ -355,6 +372,25 @@ document.addEventListener('DOMContentLoaded', function() {
                 document.body.style.overflow = 'hidden';
             }
         });
+        item.addEventListener('keydown', function(e) {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            e.preventDefault();
+            e.stopPropagation();
+            this.click();
+        });
+    });
+
+    // Reuse the matching portfolio item so featured projects open in the same
+    // on-site video modal, with one source of truth for project metadata.
+    document.querySelectorAll('.selected-project-trigger').forEach(trigger => {
+        trigger.addEventListener('click', event => {
+            event.preventDefault();
+            const featuredCard = trigger.closest('.selected-work-card');
+            const projectTitleToOpen = featuredCard?.dataset.projectTitle;
+            const matchingProject = workItems.find(item => item.dataset.title === projectTitleToOpen);
+
+            if (matchingProject) matchingProject.click();
+        });
     });
 
     // Nav button click handlers
@@ -370,13 +406,18 @@ document.addEventListener('DOMContentLoaded', function() {
             navigateProject(1);
         });
     }
-
     // Close project modal
     function closeProjectModal() {
         if (projectModal) {
-            projectModal.classList.remove('active');
-            if (projectVideoEmbed) projectVideoEmbed.src = '';
-            document.body.style.overflow = '';
+                projectModal.classList.remove('active');
+                if (projectVideoEmbed) projectVideoEmbed.src = '';
+                if (projectModalVideo) projectModalVideo.classList.remove('spotify-episode');
+                if (projectExternal) {
+                    projectExternal.hidden = true;
+                    projectExternal.href = '#';
+                    projectExternal.textContent = '';
+                }
+                document.body.style.overflow = '';
         }
     }
 
@@ -397,8 +438,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Escape') {
             if (projectModal && projectModal.classList.contains('active')) {
                 closeProjectModal();
-            } else if (aboutModal && aboutModal.classList.contains('active')) {
-                closeAboutModal();
             }
         }
         if (projectModal && projectModal.classList.contains('active')) {
@@ -417,80 +456,32 @@ document.addEventListener('DOMContentLoaded', function() {
     // ============================================
     const audioPlayer = {
         audio: null,
-        playBtn: null,
-        prevBtn: null,
-        nextBtn: null,
         tracks: [],
         currentTrackIndex: 0,
         isPlaying: false,
-        isScrubbing: false,
-        progressFill: null,
-        progressGlow: null,
-        playhead: null,
-        currTimeEl: null,
-        totalTimeEl: null,
         albumCircle: null,
 
         init() {
             this.audio = document.getElementById('releaseAudio');
-            this.playBtn = document.getElementById('playBtn');
-            this.prevBtn = document.getElementById('prevBtn');
-            this.nextBtn = document.getElementById('nextBtn');
-            this.progressFill = document.getElementById('progressFill');
-            this.progressGlow = document.getElementById('progressGlow');
-            this.playhead = document.getElementById('playhead');
-            this.currTimeEl = document.getElementById('currTime');
-            this.totalTimeEl = document.getElementById('totalTime');
             this.albumCircle = document.getElementById('albumCircle');
-            this.albumPlayBtn = document.getElementById('albumPlayBtn');
 
             const tracklist = document.getElementById('releaseTracklist');
             if (tracklist) {
                 this.tracks = Array.from(tracklist.querySelectorAll('.track'));
             }
 
-            if (!this.audio || !this.playBtn) {
+            if (!this.audio || !this.tracks.length) {
                 console.warn('Audio player elements not found');
                 return;
             }
 
-            this.generateWaveform();
             this.loadTrack(0);
 
             this.bindEvents();
             this.updatePlayIcon();
         },
 
-        generateWaveform() {
-            const container = document.getElementById('progressWaveform');
-            if (!container) return;
-            const heights = [40,65,45,80,55,70,50,85,60,75,45,90,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50,75,45,60,85,55,70,40,65,80,50];
-            heights.forEach(h => {
-                const bar = document.createElement('div');
-                bar.className = 'waveform-bar';
-                bar.style.height = h + '%';
-                container.appendChild(bar);
-            });
-        },
-
         bindEvents() {
-            this.playBtn.addEventListener('click', () => this.togglePlay());
-            
-            if (this.albumPlayBtn) {
-                this.albumPlayBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    this.togglePlay();
-                });
-            }
-            
-            if (this.prevBtn) {
-                this.prevBtn.addEventListener('click', () => this.playPrev());
-            }
-            
-            if (this.nextBtn) {
-                this.nextBtn.addEventListener('click', () => this.playNext());
-            }
-
             this.tracks.forEach((track, index) => {
                 track.addEventListener('click', (e) => {
                     if (e.target.closest('.track-play-btn')) {
@@ -504,37 +495,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
             });
 
-            const progressTrack = document.querySelector('.waveform-container');
-            if (progressTrack) {
-                progressTrack.addEventListener('click', (e) => this.handleSeek(e));
-                progressTrack.addEventListener('mousedown', (e) => this.startScrub(e));
-                document.addEventListener('mousemove', (e) => this.scrub(e));
-                document.addEventListener('mouseup', (e) => this.endScrub(e));
-            }
-
             this.audio.addEventListener('play', () => this.onPlay());
             this.audio.addEventListener('pause', () => this.onPause());
             this.audio.addEventListener('ended', () => this.onEnded());
-            this.audio.addEventListener('timeupdate', () => this.updateProgress());
-            this.audio.addEventListener('loadedmetadata', () => this.onLoadedMetadata());
             this.audio.addEventListener('error', (e) => this.onError(e));
 
             document.addEventListener('keydown', (e) => {
                 if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
-                    const anyModalActive = document.querySelector('.about-modal-overlay.active, .project-modal-overlay.active');
+                    const anyModalActive = document.querySelector('.project-modal-overlay.active');
                     if (!anyModalActive) {
                         e.preventDefault();
                         this.togglePlay();
                     }
                 }
             });
-        },
-
-        formatTime(seconds) {
-            if (isNaN(seconds) || !isFinite(seconds)) return '0:00';
-            const mins = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${mins}:${secs.toString().padStart(2, '0')}`;
         },
 
         loadTrack(index) {
@@ -554,15 +528,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 t.classList.remove('playing');
             });
 
-            if (this.currTimeEl) {
-                this.currTimeEl.textContent = '0:00';
-            }
-            if (this.progressFill) {
-                this.progressFill.style.width = '0%';
-            }
-            if (this.playhead) {
-                this.playhead.style.left = '0%';
-            }
         },
 
         togglePlay() {
@@ -603,57 +568,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
 
-        handleSeek(e) {
-            const bar = e.currentTarget;
-            const rect = bar.getBoundingClientRect();
-            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            
-            if (!this.audio.src || this.audio.src === window.location.href) {
-                this.loadTrack(this.currentTrackIndex);
-            }
-            
-            if (this.audio.duration) {
-                this.audio.currentTime = percent * this.audio.duration;
-                if (!this.isPlaying) {
-                    this.audio.play().catch(err => {
-                        console.warn('Play failed:', err);
-                    });
-                }
-            }
-        },
-
-        startScrub(e) {
-            this.isScrubbing = true;
-            this.handleSeek(e);
-        },
-
-        scrub(e) {
-            if (!this.isScrubbing) return;
-            const progressTrack = document.querySelector('.waveform-container');
-            if (!progressTrack) return;
-            const rect = progressTrack.getBoundingClientRect();
-            const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-            if (this.audio.duration && this.progressFill) {
-                this.progressFill.style.width = `${percent * 100}%`;
-                if (this.playhead) {
-                    this.playhead.style.left = `${percent * 100}%`;
-                }
-                if (this.progressGlow) {
-                    this.progressGlow.style.left = `${percent * 100}%`;
-                }
-                if (this.currTimeEl) {
-                    this.currTimeEl.textContent = this.formatTime(percent * this.audio.duration);
-                }
-            }
-        },
-
-        endScrub(e) {
-            if (this.isScrubbing) {
-                this.isScrubbing = false;
-                this.handleSeek(e);
-            }
-        },
-
         onPlay() {
             this.isPlaying = true;
             this.updatePlayIcon();
@@ -661,14 +575,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 this.albumCircle.classList.add('playing');
                 this.albumCircle.classList.remove('paused');
             }
-            if (this.playhead) {
-                this.playhead.classList.add('visible');
-            }
-            if (this.progressGlow) {
-                this.progressGlow.classList.add('visible');
-            }
-            const progressBar = document.querySelector('.release-progress');
-            if (progressBar) progressBar.classList.add('visible');
         },
 
         onPause() {
@@ -681,37 +587,7 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         onEnded() {
-            if (this.playhead) {
-                this.playhead.classList.remove('visible');
-            }
-            if (this.progressGlow) {
-                this.progressGlow.classList.remove('visible');
-            }
             this.playNext();
-        },
-
-        updateProgress() {
-            if (this.audio.duration) {
-                const percent = (this.audio.currentTime / this.audio.duration) * 100;
-                if (this.progressFill) {
-                    this.progressFill.style.width = `${percent}%`;
-                }
-                if (this.playhead) {
-                    this.playhead.style.left = `${percent}%`;
-                }
-                if (this.progressGlow) {
-                    this.progressGlow.style.left = `${percent}%`;
-                }
-                if (this.currTimeEl) {
-                    this.currTimeEl.textContent = this.formatTime(this.audio.currentTime);
-                }
-            }
-        },
-
-        onLoadedMetadata() {
-            if (this.totalTimeEl) {
-                this.totalTimeEl.textContent = this.formatTime(this.audio.duration);
-            }
         },
 
         onError(e) {
@@ -724,88 +600,16 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         updatePlayIcon() {
-            const iconPlay = this.playBtn.querySelector('.icon-play');
-            const iconPause = this.playBtn.querySelector('.icon-pause');
-            
             if (this.isPlaying) {
-                if (iconPlay) iconPlay.style.display = 'none';
-                if (iconPause) iconPause.style.display = 'block';
                 this.tracks.forEach((track, i) => {
                     track.classList.toggle('playing', i === this.currentTrackIndex);
                 });
             } else {
-                if (iconPlay) iconPlay.style.display = 'block';
-                if (iconPause) iconPause.style.display = 'none';
                 this.tracks.forEach(track => track.classList.remove('playing'));
             }
         }
     };
 
     audioPlayer.init();
-
-    // ============================================
-    // Play Button Delegation (triggers project modal)
-    // ============================================
-    document.querySelectorAll('.play-btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            const workItem = this.closest('.work-item');
-            if (workItem) {
-                workItem.click();
-            }
-        });
-    });
-
-    // ============================================
-    // Stats Counter Animation
-    // ============================================
-    const statNumbers = document.querySelectorAll('.about-modal .stat-number');
-    let statsAnimated = false;
-    
-    function animateStats() {
-        if (statsAnimated || !statNumbers.length) return;
-        
-        const modal = document.querySelector('.about-modal');
-        if (!modal) return;
-        
-        const rect = modal.getBoundingClientRect();
-        if (rect.top < window.innerHeight && rect.bottom > 0) {
-            statsAnimated = true;
-            
-            statNumbers.forEach(stat => {
-                const target = stat.textContent;
-                const numericValue = parseInt(target.replace(/\D/g, ''));
-                const suffix = target.replace(/[0-9]/g, '');
-                let current = 0;
-                const increment = numericValue / 50;
-                const duration = 2000;
-                const stepTime = duration / 50;
-                
-                const counter = setInterval(() => {
-                    current += increment;
-                    if (current >= numericValue) {
-                        stat.textContent = target;
-                        clearInterval(counter);
-                    } else {
-                        stat.textContent = Math.floor(current) + suffix;
-                    }
-                }, stepTime);
-            });
-        }
-    }
-    
-    // Observe modal for animation
-    if (aboutModal) {
-        const modalObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    setTimeout(animateStats, 300);
-                }
-            });
-        }, { threshold: 0.3 });
-        
-        modalObserver.observe(aboutModal);
-    }
 
 });
