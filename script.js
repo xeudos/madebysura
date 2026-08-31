@@ -284,7 +284,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const projectExternal = document.getElementById('projectExternal');
 
     let currentProjectIndex = 0;
-    let modalStartTime = null;
 
     const featuredModalOrder = [
         'ING: Money Laundering',
@@ -375,12 +374,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if (url) {
                 setTimeout(function() {
                     let embedUrl = convertToEmbedUrl(url);
-                    if (modalStartTime !== null && title === 'ING: Money Laundering') {
+                    if (previewWasHandedOff && title === 'ING: Money Laundering') {
                         const separator = embedUrl.includes('?') ? '&' : '?';
-                        embedUrl += separator + 'autoplay=1&mute=1&start=' + Math.max(0, Math.floor(modalStartTime));
+                        embedUrl += separator + 'autoplay=1';
                     }
                     projectVideoEmbed.src = embedUrl;
-                    modalStartTime = null;
                 }, 50);
             }
         }
@@ -445,7 +443,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
             if (matchingProject) {
                 if (projectTitleToOpen === 'ING: Money Laundering' && previewPlayerReady) {
-                    modalStartTime = previewPlayer.getCurrentTime();
                     previewPlayer.pauseVideo();
                     previewWasHandedOff = true;
                 }
