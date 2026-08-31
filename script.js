@@ -19,14 +19,61 @@ document.addEventListener('DOMContentLoaded', function() {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     const previewIframe = document.querySelector('[data-autoplay-preview]');
+    let previewPlayer = null;
+    let previewPlayerReady = false;
+    let previewWasHandedOff = false;
+    let youtubeIframeApiPromise = null;
+
+    function loadYouTubeIframeApi() {
+        if (window.YT && window.YT.Player) return Promise.resolve(window.YT);
+        if (youtubeIframeApiPromise) return youtubeIframeApiPromise;
+
+        youtubeIframeApiPromise = new Promise(resolve => {
+            const existingReadyHandler = window.onYouTubeIframeAPIReady;
+            window.onYouTubeIframeAPIReady = function() {
+                if (typeof existingReadyHandler === 'function') existingReadyHandler();
+                resolve(window.YT);
+            };
+
+            if (!document.querySelector('script[src="https://www.youtube.com/iframe_api"]')) {
+                const apiScript = document.createElement('script');
+                apiScript.src = 'https://www.youtube.com/iframe_api';
+                document.head.appendChild(apiScript);
+            }
+        });
+
+        return youtubeIframeApiPromise;
+    }
+
+    function initializePreviewPlayer() {
+        if (!previewIframe || previewPlayer || !previewIframe.hasAttribute('src')) return;
+
+        loadYouTubeIframeApi().then(YT => {
+            if (previewPlayer || !previewIframe.isConnected || !previewIframe.hasAttribute('src')) return;
+            previewPlayer = new YT.Player(previewIframe, {
+                events: {
+                    onReady(event) {
+                        previewPlayerReady = true;
+                        event.target.mute();
+                        event.target.playVideo();
+                    }
+                }
+            });
+        });
+    }
+
     if (previewIframe && !prefersReducedMotion) {
         const loadPreview = () => {
             if (!previewIframe.hasAttribute('src')) previewIframe.src = previewIframe.dataset.src;
+            initializePreviewPlayer();
         };
         const unloadPreview = () => {
-            if (!previewIframe.hasAttribute('src')) return;
-            previewIframe.src = 'about:blank';
-            previewIframe.removeAttribute('src');
+            if (previewPlayerReady) {
+                previewPlayer.pauseVideo();
+            } else if (previewIframe.hasAttribute('src')) {
+                previewIframe.src = 'about:blank';
+                previewIframe.removeAttribute('src');
+            }
         };
 
         if ('IntersectionObserver' in window) {
@@ -237,6 +284,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const projectExternal = document.getElementById('projectExternal');
 
     let currentProjectIndex = 0;
+    let modalStartTime = null;
 
     const featuredModalOrder = [
         'ING: Money Laundering',
@@ -326,7 +374,13 @@ document.addEventListener('DOMContentLoaded', function() {
             projectVideoEmbed.src = 'about:blank';
             if (url) {
                 setTimeout(function() {
-                    projectVideoEmbed.src = convertToEmbedUrl(url);
+                    let embedUrl = convertToEmbedUrl(url);
+                    if (modalStartTime !== null && title === 'ING: Money Laundering') {
+                        const separator = embedUrl.includes('?') ? '&' : '?';
+                        embedUrl += separator + 'autoplay=1&mute=1&start=' + Math.max(0, Math.floor(modalStartTime));
+                    }
+                    projectVideoEmbed.src = embedUrl;
+                    modalStartTime = null;
                 }, 50);
             }
         }
@@ -389,7 +443,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const projectTitleToOpen = featuredCard?.dataset.projectTitle;
             const matchingProject = workItems.find(item => item.dataset.title === projectTitleToOpen);
 
-            if (matchingProject) matchingProject.click();
+            if (matchingProject) {
+                if (projectTitleToOpen === 'ING: Money Laundering' && previewPlayerReady) {
+                    modalStartTime = previewPlayer.getCurrentTime();
+                    previewPlayer.pauseVideo();
+                    previewWasHandedOff = true;
+                }
+                matchingProject.click();
+            }
         });
     });
 
@@ -416,6 +477,11 @@ document.addEventListener('DOMContentLoaded', function() {
                     projectExternal.hidden = true;
                     projectExternal.href = '#';
                     projectExternal.textContent = '';
+                }
+                if (previewWasHandedOff && previewPlayerReady) {
+                    previewPlayer.mute();
+                    previewPlayer.playVideo();
+                    previewWasHandedOff = false;
                 }
                 document.body.style.overflow = '';
         }
