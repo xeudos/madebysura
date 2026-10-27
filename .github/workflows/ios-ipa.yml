@@ -45,6 +45,17 @@ jobs:
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
             -resultBundlePath build/Tests.xcresult \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/tests.log
+      - name: Capture simulator preview
+        run: |
+          set -euo pipefail
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
+          xcrun simctl launch "$DEVICE_ID" nl.madebysura.interval
+          sleep 3
+          xcrun simctl io "$DEVICE_ID" screenshot build/app-preview.png
+          sips -Z 1000 -s format jpeg build/app-preview.png --out build/app-preview.jpg >/dev/null
+          echo BEGIN_APP_PREVIEW
+          base64 -i build/app-preview.jpg | fold -w 76
+          echo END_APP_PREVIEW
       - name: Build arm64 iPhone app
         run: |
           set -euo pipefail
@@ -100,6 +111,7 @@ jobs:
           name: Interval-build-evidence
           path: |
             build/*.log
+            build/app-preview.*
             build/Tests.xcresult
             build/rea
           retention-days: 14
