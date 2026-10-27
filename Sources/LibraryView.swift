@@ -26,7 +26,7 @@ struct LibraryView: View {
                                     .background(Theme.lime.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
                                 VStack(alignment: .leading, spacing: 7) {
                                     Text(workout.name).font(.headline).foregroundStyle(Theme.cream)
-                                    Text("\(workout.rounds) rounds · \(workout.sets) sets · \(clockText(workout.work))/\(clockText(workout.rest))")
+                                    Text("\(workout.rounds) rounds · \(workout.sets) sets · \(clockText(workout.work))/\(clockText(workout.rest)) · \(workout.countdownSeconds)s cue")
                                         .font(.caption).foregroundStyle(.secondary)
                                 }
                                 Spacer()

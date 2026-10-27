@@ -10,7 +10,7 @@ This branch is an independent app project. The website on `master` is unchanged.
 - Custom names for each round, with repeatable sets.
 - Full-screen, colour-coded countdown with pause, resume, and skip.
 - Voice, beep, or silent guidance. Audio mixes with music.
-- Adjustable countdown warning: 1–10 seconds before the next interval (including 3 or 5), or off.
+- Adjustable countdown warning: 1–10 seconds before the next interval (including 3 or 5), or off. Each favorite remembers its own warning duration.
 - Pre-rendered audible cue track for interval sounds while the screen is locked.
 - Phone-call interruptions pause the session; resume manually afterward.
 - Multiple named favorite timers, starter presets, local history, and weekly training totals.
@@ -19,6 +19,8 @@ This branch is an independent app project. The website on `master` is unchanged.
 ## Download the IPA
 
 Open **Actions → Build Interval IPA → latest successful run → Artifacts → Interval-unsigned-IPA**.
+A direct IPA is also saved in [Downloads/Interval-unsigned.ipa](Downloads/Interval-unsigned.ipa) on this branch after a successful build.
+
 Extract the artifact ZIP to get `Interval-unsigned.ipa`.
 
 This is a real arm64 device build, **unsigned**. It must be signed with your own

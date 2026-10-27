@@ -63,12 +63,9 @@ final class AudioGuide {
         for phase in phases {
             tones.append(Tone(start: Double(elapsed), length: 0.28,
                               frequency: phase.kind == .work ? 1100 : 700))
-            let lead = min(countdownSeconds, max(0, phase.duration - 1))
-            if lead > 0 {
-                for seconds in stride(from: lead, through: 1, by: -1) {
-                    tones.append(Tone(start: Double(elapsed + phase.duration - seconds),
-                                      length: 0.10, frequency: 850))
-                }
+            for seconds in CountdownSchedule.seconds(duration: phase.duration, lead: countdownSeconds) {
+                tones.append(Tone(start: Double(elapsed + phase.duration - seconds),
+                                  length: 0.10, frequency: 850))
             }
             elapsed += phase.duration
         }

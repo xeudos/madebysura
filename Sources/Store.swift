@@ -7,7 +7,10 @@ final class WorkoutStore: ObservableObject {
     @Published var presets: [Workout] { didSet { save(presets, key: "presets.v1") } }
     @Published var history: [WorkoutRecord] { didSet { save(history, key: "history.v1") } }
     @Published var cue: CueMode { didSet { defaults.set(cue.rawValue, forKey: "cue.v1") } }
-    @Published var countdownSeconds: Int { didSet { defaults.set(countdownSeconds, forKey: "countdown.v1") } }
+    var countdownSeconds: Int {
+        get { draft.countdownSeconds }
+        set { draft.countdownSeconds = min(10, max(0, newValue)) }
+    }
     @Published var haptics: Bool { didSet { defaults.set(haptics, forKey: "haptics.v1") } }
     @Published var keepAwake: Bool { didSet { defaults.set(keepAwake, forKey: "awake.v1") } }
     @Published var storageError: String?
@@ -30,7 +33,6 @@ final class WorkoutStore: ObservableObject {
         presets = load("presets.v1", fallback: Workout.presets)
         history = load("history.v1", fallback: [])
         cue = CueMode(rawValue: defaults.string(forKey: "cue.v1") ?? "") ?? .voice
-        countdownSeconds = defaults.object(forKey: "countdown.v1") == nil ? 3 : min(10, max(0, defaults.integer(forKey: "countdown.v1")))
         haptics = defaults.object(forKey: "haptics.v1") == nil ? true : defaults.bool(forKey: "haptics.v1")
         keepAwake = defaults.object(forKey: "awake.v1") == nil ? true : defaults.bool(forKey: "awake.v1")
     }

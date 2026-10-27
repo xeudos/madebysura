@@ -24,6 +24,7 @@ struct Workout: Codable, Identifiable, Equatable {
     var recovery = 60
     var cooldown = 30
     var exercises: [String] = []
+    var countdownSeconds = 3
 
     var validationMessage: String? {
         guard (1...3600).contains(work) else { return "Work must be between 1 second and 60 minutes." }
@@ -33,6 +34,7 @@ struct Workout: Codable, Identifiable, Equatable {
         guard (1...60).contains(rounds), (1...20).contains(sets) else {
             return "Choose 1–60 rounds and 1–20 sets."
         }
+        guard (0...10).contains(countdownSeconds) else { return "Countdown warning must be between 0 and 10 seconds." }
         guard totalDuration <= 10800 else { return "Keep the total workout under 3 hours." }
         return nil
     }
@@ -124,4 +126,12 @@ func clockText(_ seconds: Int) -> String {
         return String(format: "%d:%02d:%02d", value / 3600, (value % 3600) / 60, value % 60)
     }
     return String(format: "%02d:%02d", value / 60, value % 60)
+}
+
+enum CountdownSchedule {
+    static func seconds(duration: Int, lead: Int) -> [Int] {
+        let count = min(max(0, min(10, lead)), max(0, duration - 1))
+        guard count > 0 else { return [] }
+        return Array(stride(from: count, through: 1, by: -1))
+    }
 }

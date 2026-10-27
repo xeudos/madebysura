@@ -4,7 +4,7 @@ on:
     branches: [interval-timer-ios]
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
 concurrency:
   group: interval-ios-${{ github.ref }}
   cancel-in-progress: true
@@ -62,6 +62,19 @@ jobs:
             build/Interval-unsigned.ipa.sha256
           if-no-files-found: error
           retention-days: 30
+      - name: Save downloadable IPA on app branch
+        run: |
+          set -euo pipefail
+          mkdir -p Downloads
+          cp build/Interval-unsigned.ipa Downloads/Interval-unsigned.ipa
+          shasum -a 256 Downloads/Interval-unsigned.ipa > Downloads/Interval-unsigned.ipa.sha256
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Downloads
+          if ! git diff --cached --quiet; then
+            git commit -m "Update downloadable Interval IPA [skip ci]"
+            git push origin HEAD:interval-timer-ios
+          fi
       - name: Inspect built IPA with REA
         run: |
           set -euo pipefail

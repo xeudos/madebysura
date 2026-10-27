@@ -157,7 +157,7 @@ struct TimerHome: View {
                         .opacity(store.draft.validationMessage == nil ? 1 : 0.4)
                     HStack {
                         Image(systemName: store.cue == .off ? "speaker.slash" : "waveform")
-                        Text(store.cue == .off ? "Silent session" : "\(store.cue.rawValue) cues · works with your music")
+                        Text(store.cue == .off ? "Silent session" : "\(store.cue.rawValue) cues · \(store.countdownSeconds)s countdown")
                     }
                     .font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity)
                 }

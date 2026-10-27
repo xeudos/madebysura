@@ -46,6 +46,22 @@ final class TimelineTests: XCTestCase {
             XCTAssertEqual(w.phases.filter { $0.kind == .work }.reduce(0) { $0 + $1.duration }, w.workDuration)
         }
     }
+    func testThreeOrFiveSecondCountdownAndShortIntervals() {
+        XCTAssertEqual(CountdownSchedule.seconds(duration: 10, lead: 3), [3, 2, 1])
+        XCTAssertEqual(CountdownSchedule.seconds(duration: 10, lead: 5), [5, 4, 3, 2, 1])
+        XCTAssertEqual(CountdownSchedule.seconds(duration: 2, lead: 5), [1])
+        XCTAssertEqual(CountdownSchedule.seconds(duration: 1, lead: 5), [])
+        XCTAssertEqual(CountdownSchedule.seconds(duration: 10, lead: 0), [])
+    }
+    func testFavoritesKeepIndependentCountdownPreferences() throws {
+        var a = Workout(name: "Short warm-up")
+        a.countdownSeconds = 3
+        var b = Workout(name: "Long warning")
+        b.countdownSeconds = 5
+        let decoded = try JSONDecoder().decode([Workout].self, from: JSONEncoder().encode([a, b]))
+        XCTAssertEqual(decoded.map(\.countdownSeconds), [3, 5])
+        XCTAssertNotEqual(decoded[0].id, decoded[1].id)
+    }
     func testFormats() {
         XCTAssertEqual(clockText(5), "00:05")
         XCTAssertEqual(clockText(65), "01:05")
