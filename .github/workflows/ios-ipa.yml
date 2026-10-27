@@ -1,0 +1,81 @@
+name: Build Interval IPA
+on:
+  push:
+    branches: [interval-timer-ios]
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: interval-ios-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Node for REA
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24.22.1'
+      - name: Prepare Xcode project and icon
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          xcodebuild -version
+          if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
+          swift scripts/GenerateIcon.swift
+          xcodegen generate
+      - name: Run timeline and persistence tests
+        run: |
+          set -euo pipefail
+          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
+          xcodebuild test -project Interval.xcodeproj -scheme Interval -configuration Debug \
+            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
+            -resultBundlePath build/Tests.xcresult \
+            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/tests.log
+      - name: Build arm64 iPhone app
+        run: |
+          set -euo pipefail
+          xcodebuild build -project Interval.xcodeproj -scheme Interval -configuration Release \
+            -destination 'generic/platform=iOS' -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" \
+            2>&1 | tee build/device.log
+      - name: Package and verify IPA
+        run: |
+          set -euo pipefail
+          mkdir -p build/package/Payload
+          ditto build/device/Build/Products/Release-iphoneos/Interval.app build/package/Payload/Interval.app
+          /usr/libexec/PlistBuddy -c 'Print :CFBundleIdentifier' build/package/Payload/Interval.app/Info.plist
+          lipo -info build/package/Payload/Interval.app/Interval
+          cd build/package
+          zip -qry ../Interval-unsigned.ipa Payload
+          cd ../..
+          shasum -a 256 build/Interval-unsigned.ipa > build/Interval-unsigned.ipa.sha256
+          python3 -c 'import zipfile; z=zipfile.ZipFile("build/Interval-unsigned.ipa"); assert "Payload/Interval.app/Interval" in z.namelist(); assert z.testzip() is None'
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Interval-unsigned-IPA
+          path: |
+            build/Interval-unsigned.ipa
+            build/Interval-unsigned.ipa.sha256
+          if-no-files-found: error
+          retention-days: 30
+      - name: Inspect built IPA with REA
+        run: |
+          set -euo pipefail
+          mkdir -p build/rea
+          npm exec --yes --package=rea-agents@6.8.0 -- rea --version > build/rea/version.txt
+          npm exec --yes --package=rea-agents@6.8.0 -- rea inspect-artifact "$PWD/build/Interval-unsigned.ipa" --json > build/rea/ipa-evidence.json 2> build/rea/ipa-stderr.txt
+          npm exec --yes --package=rea-agents@6.8.0 -- rea inspect-plist "$PWD/build/package/Payload/Interval.app/Info.plist" --json > build/rea/plist-evidence.json 2> build/rea/plist-stderr.txt
+      - name: Upload build logs, tests, and REA evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Interval-build-evidence
+          path: |
+            build/*.log
+            build/Tests.xcresult
+            build/rea
+          retention-days: 14

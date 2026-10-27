@@ -1,0 +1,5 @@
+build/
+*.xcodeproj/
+.DS_Store
+Resources/Assets.xcassets/AppIcon.appiconset/AppIcon.png
+Resources/Info.plist
