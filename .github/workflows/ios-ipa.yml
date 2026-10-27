@@ -9,17 +9,6 @@ concurrency:
   group: interval-ios-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  reference:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - name: Read public App Store design reference
-        run: |
-          set -euo pipefail
-          curl --fail --location --max-time 60 'https://is1-ssl.mzstatic.com/image/thumb/Purple115/v4/70/3c/ff/703cffbf-eec6-48f0-caf0-9707a054de90/8449b80b-e112-4dec-8ac9-77fd84476469_iPadPro12-9_ss1.png/512x683.png' -o /tmp/interval-reference.png
-          echo BEGIN_REFERENCE_IMAGE
-          base64 -w 76 /tmp/interval-reference.png
-          echo END_REFERENCE_IMAGE
   build:
     runs-on: macos-15
     timeout-minutes: 35
@@ -43,12 +32,16 @@ jobs:
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
           xcodebuild test -project Interval.xcodeproj -scheme Interval -configuration Debug \
             -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-            -resultBundlePath build/Tests.xcresult \
+            -resultBundlePath build/Tests.xcresult -derivedDataPath build/simulator \
             CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/tests.log
       - name: Capture simulator preview
         run: |
           set -euo pipefail
           DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
+          STATE=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["state"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
+          if [ "$STATE" != "Booted" ]; then xcrun simctl boot "$DEVICE_ID"; fi
+          xcrun simctl bootstatus "$DEVICE_ID" -b
+          xcrun simctl install "$DEVICE_ID" build/simulator/Build/Products/Debug-iphonesimulator/Interval.app
           xcrun simctl launch "$DEVICE_ID" nl.madebysura.interval
           sleep 3
           xcrun simctl io "$DEVICE_ID" screenshot build/app-preview.png
