@@ -8,9 +8,9 @@ struct LibraryView: View {
             List {
                 Section {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Ready when you are.")
+                        Text("Favorite timers")
                             .font(.system(size: 30, weight: .bold, design: .rounded)).tracking(-0.7)
-                        Text("Your favourite sessions, one tap away.")
+                        Text("Save different routines and load them in one tap.")
                             .font(.subheadline).foregroundStyle(.secondary)
                     }.padding(.vertical, 12).listRowBackground(Color.clear)
                 }
@@ -39,7 +39,7 @@ struct LibraryView: View {
                     .onDelete { store.presets.remove(atOffsets: $0) }
                 }
                 if store.presets.isEmpty {
-                    Text("Save a workout from the Timer tab using the bookmark button.")
+                    Text("Save a workout from the Timer tab using the star button.")
                         .foregroundStyle(.secondary).listRowBackground(Color.clear)
                 }
                 Section {
@@ -50,7 +50,7 @@ struct LibraryView: View {
                 }
             }
             .scrollContentBackground(.hidden).background(Theme.background)
-            .navigationTitle("Workouts")
+            .navigationTitle("Favorites")
             .toolbar { EditButton() }
         }
     }

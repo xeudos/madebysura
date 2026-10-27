@@ -6,8 +6,8 @@ struct ContentView: View {
     var body: some View {
         TabView(selection: $tab) {
             TimerHome().tabItem { Label("Timer", systemImage: "timer") }.tag(0)
-            LibraryView(tab: $tab).tabItem { Label("Workouts", systemImage: "square.stack.3d.up") }.tag(1)
-            ProgressView(tab: $tab).tabItem { Label("Progress", systemImage: "chart.bar.xaxis") }.tag(2)
+            LibraryView(tab: $tab).tabItem { Label("Favorites", systemImage: "star") }.tag(1)
+            ProgressView(tab: $tab).tabItem { Label("History", systemImage: "clock.arrow.circlepath") }.tag(2)
             SettingsView().tabItem { Label("Settings", systemImage: "slider.horizontal.3") }.tag(3)
         }
         .toolbarBackground(Theme.background, for: .tabBar)
@@ -35,9 +35,10 @@ private enum IntervalField: String, Identifiable {
     var color: Color {
         switch self {
         case .work: return Theme.lime
-        case .rest: return Theme.blue
-        case .recovery: return Theme.orange
-        default: return Theme.cream
+        case .rest: return Theme.red
+        case .recovery: return Color(red: 0.58, green: 0.43, blue: 0.76)
+        case .prepare: return Theme.orange
+        case .cooldown: return Theme.blue
         }
     }
     var icon: String {
@@ -81,148 +82,138 @@ struct TimerHome: View {
     var body: some View {
         NavigationStack {
             ScrollView {
-                VStack(alignment: .leading, spacing: 25) {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 8) {
-                            SmallLabel(title: "YOUR PACE. YOUR SESSION.")
-                            Text("Make time.\nMake progress.")
-                                .font(.system(size: 38, weight: .bold, design: .rounded))
-                                .tracking(-1.5)
-                        }
-                        Spacer(minLength: 2)
-                        Image(systemName: "timer")
-                            .font(.system(size: 25, weight: .medium))
-                            .foregroundStyle(Theme.lime).padding(14)
-                            .background(Theme.surface, in: Circle())
-                    }
-                    VStack(alignment: .leading, spacing: 18) {
-                        HStack {
-                            TextField("Workout name", text: $store.draft.name)
-                                .font(.system(size: 18, weight: .semibold))
-                                .accessibilityLabel("Workout name")
-                            Button {
-                                store.savePreset()
-                                showSaved = true
-                            } label: {
-                                Image(systemName: showSaved ? "checkmark.circle.fill" : "bookmark")
-                                    .font(.system(size: 20)).foregroundStyle(Theme.lime)
-                            }
-                            .accessibilityLabel("Save workout")
+                VStack(spacing: 12) {
+                    HStack(spacing: 12) {
+                        TextField("Workout name", text: $store.draft.name)
+                            .font(.system(size: 20, weight: .medium))
+                            .accessibilityLabel("Workout name")
+                        Button {
+                            store.savePreset()
+                            showSaved = true
+                        } label: {
+                            Image(systemName: "star").font(.system(size: 24))
+                                .foregroundStyle(Theme.blue)
+                        }.accessibilityLabel("Save favorite timer")
                             .disabled(store.draft.validationMessage != nil)
-                        }
-                        HStack(alignment: .lastTextBaseline, spacing: 7) {
-                            Text(clockText(store.draft.totalDuration))
-                                .font(.system(size: 48, weight: .medium, design: .rounded))
-                                .monospacedDigit().tracking(-2)
-                            Text("TOTAL").font(.system(size: 11, weight: .bold, design: .monospaced))
-                                .foregroundStyle(.secondary)
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 5) {
-                                Text("\(store.draft.rounds * store.draft.sets)")
-                                    .font(.system(size: 23, weight: .semibold, design: .rounded))
-                                SmallLabel(title: "intervals")
-                            }
-                        }
-                    }
-                    .padding(23).background(Theme.surface, in: RoundedRectangle(cornerRadius: 26))
+                    }.padding(.horizontal, 5).padding(.top, 4).padding(.bottom, 2)
 
-                    VStack(spacing: 9) {
-                        HStack {
-                            SmallLabel(title: "Build your workout")
-                            Spacer()
-                            Text("Tap or drag a value").font(.caption2).foregroundStyle(.secondary)
-                        }.padding(.bottom, 3)
+                    HStack {
+                        Text("TOTAL TIME").font(.system(size: 12, weight: .semibold))
+                            .foregroundStyle(.secondary)
+                        Spacer()
+                        Text(clockText(store.draft.totalDuration))
+                            .font(.system(size: 27, weight: .light)).monospacedDigit()
+                    }.padding(.horizontal, 5).padding(.bottom, 2)
+
+                    VStack(spacing: 6) {
                         intervalRow(.prepare)
                         intervalRow(.work)
                         intervalRow(.rest)
-                        counterRow("Rounds", subtitle: "per set", icon: "repeat", value: $store.draft.rounds, range: 1...60)
-                        counterRow("Sets", subtitle: "complete circuits", icon: "square.stack", value: $store.draft.sets, range: 1...20)
+                        counterRow("Rounds", subtitle: "per set", icon: "repeat",
+                                   value: $store.draft.rounds, range: 1...60)
+                        counterRow("Sets", subtitle: "complete circuits", icon: "square.stack",
+                                   value: $store.draft.sets, range: 1...20)
                         if store.draft.sets > 1 { intervalRow(.recovery) }
                         intervalRow(.cooldown)
                     }
 
-                    Button { showExercises = true } label: {
-                        HStack {
-                            Label("Name your exercises", systemImage: "list.bullet")
-                            Spacer()
-                            Image(systemName: "chevron.right").font(.caption.bold())
-                        }.font(.subheadline.weight(.medium)).foregroundStyle(Theme.cream)
-                    }
+                    HStack {
+                        Button { showExercises = true } label: {
+                            Label("Exercise names", systemImage: "list.bullet")
+                        }
+                        Spacer()
+                        Menu {
+                            ForEach([0, 3, 5, 10], id: \.self) { seconds in
+                                Button(seconds == 0 ? "Warning off" : "\(seconds) second warning") {
+                                    store.countdownSeconds = seconds
+                                }
+                            }
+                        } label: {
+                            Label("\(store.countdownSeconds)s warning", systemImage: "speaker.wave.2")
+                        }
+                    }.font(.system(size: 13)).padding(.vertical, 5).tint(Theme.blue)
 
                     if let message = store.draft.validationMessage {
-                        Text(message).font(.callout).foregroundStyle(Theme.orange)
+                        Text(message).font(.callout).foregroundStyle(Theme.red)
                     }
-                    BigButton(title: "Start workout") { showSession = true }
+                    BigButton(title: "START") { showSession = true }
                         .disabled(store.draft.validationMessage != nil)
                         .opacity(store.draft.validationMessage == nil ? 1 : 0.4)
-                    HStack {
-                        Image(systemName: store.cue == .off ? "speaker.slash" : "waveform")
-                        Text(store.cue == .off ? "Silent session" : "\(store.cue.rawValue) cues · \(store.countdownSeconds)s countdown")
-                    }
-                    .font(.caption).foregroundStyle(.secondary).frame(maxWidth: .infinity)
+                    Text("Drag a time to adjust · Tap for minutes & seconds")
+                        .font(.system(size: 11)).foregroundStyle(.secondary)
                 }
-                .padding(.horizontal, 22).padding(.top, 20).padding(.bottom, 25)
-                .frame(maxWidth: 600)
-                .frame(maxWidth: .infinity)
+                .padding(.horizontal, 14).padding(.top, 10).padding(.bottom, 20)
+                .frame(maxWidth: 620).frame(maxWidth: .infinity)
             }
             .background(Theme.background)
-            .navigationTitle("Interval").navigationBarTitleDisplayMode(.inline)
+            .navigationTitle("Interval Timer").navigationBarTitleDisplayMode(.inline)
             .sheet(item: $editing) { field in
                 DurationEditor(title: field.title, value: value(field), minimum: field == .work ? 1 : 0)
                     .presentationDetents([.height(350)])
             }
             .sheet(isPresented: $showExercises) { ExerciseEditor() }
             .fullScreenCover(isPresented: $showSession) {
-                SessionScreen(workout: store.draft, cue: store.cue, countdownSeconds: store.countdownSeconds, haptics: store.haptics, awake: store.keepAwake)
+                SessionScreen(workout: store.draft, cue: store.cue, countdownSeconds: store.countdownSeconds,
+                              haptics: store.haptics, awake: store.keepAwake)
             }
-            .alert("Workout saved", isPresented: $showSaved) {
+            .alert("Favorite saved", isPresented: $showSaved) {
                 Button("Done", role: .cancel) {}
-            } message: { Text("Find it in your favorite timers in the Workouts tab.") }
+            } message: { Text("Find this timer in Favorites. Its countdown warning is saved too.") }
         }
     }
 
     private func intervalRow(_ field: IntervalField) -> some View {
         let binding = value(field)
         return Button { editing = field } label: {
-            HStack(spacing: 13) {
-                Image(systemName: field.icon).font(.system(size: 19, weight: .medium))
-                    .frame(width: 27).foregroundStyle(field.color)
-                Text(field.title).font(.system(size: 17, weight: .semibold, design: .rounded))
+            HStack(spacing: 15) {
+                VStack(alignment: .leading, spacing: 5) {
+                    Text(field.title.uppercased()).font(.system(size: 16, weight: .semibold))
+                    Image(systemName: field.icon).font(.system(size: 19, weight: .light))
+                        .opacity(0.8)
+                }
                 Spacer()
                 Text(clockText(binding.wrappedValue))
-                    .font(.system(size: 29, weight: .medium, design: .rounded)).monospacedDigit()
-                    .foregroundStyle(field.color)
+                    .font(.system(size: 45, weight: .ultraLight)).monospacedDigit()
                     .gesture(DragGesture(minimumDistance: 12)
                         .onChanged { change in
                             if dragOrigin == nil { dragOrigin = binding.wrappedValue }
                             let step = Int(change.translation.width / 8) * 5
                             binding.wrappedValue = min(3600, max(field == .work ? 1 : 0, (dragOrigin ?? 0) + step))
-                        }
-                        .onEnded { _ in dragOrigin = nil })
+                        }.onEnded { _ in dragOrigin = nil })
+                Image(systemName: "chevron.right").font(.system(size: 11, weight: .semibold)).opacity(0.6)
             }
-            .padding(.horizontal, 19).padding(.vertical, 15)
-            .foregroundStyle(Theme.cream)
-            .background(field.color.opacity(0.075), in: RoundedRectangle(cornerRadius: 21))
-            .overlay(RoundedRectangle(cornerRadius: 21).stroke(field.color.opacity(0.13), lineWidth: 1))
+            .padding(.horizontal, 21).padding(.vertical, 12)
+            .foregroundStyle(.white)
+            .background(field.color, in: RoundedRectangle(cornerRadius: 8))
         }.buttonStyle(.plain)
             .accessibilityLabel("\(field.title), \(binding.wrappedValue) seconds. Double tap to edit.")
     }
     @State private var dragOrigin: Int?
 
-    private func counterRow(_ title: String, subtitle: String, icon: String, value: Binding<Int>, range: ClosedRange<Int>) -> some View {
-        HStack(spacing: 13) {
-            Image(systemName: icon).font(.system(size: 19)).frame(width: 27).foregroundStyle(.secondary)
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title).font(.system(size: 17, weight: .semibold, design: .rounded))
-                Text(subtitle).font(.caption).foregroundStyle(.secondary)
+    private func counterRow(_ title: String, subtitle: String, icon: String,
+                            value: Binding<Int>, range: ClosedRange<Int>) -> some View {
+        HStack {
+            VStack(alignment: .leading, spacing: 3) {
+                Text(title.uppercased()).font(.system(size: 15, weight: .semibold))
+                Text(subtitle).font(.system(size: 11)).opacity(0.8)
             }
             Spacer()
-            Stepper(value: value, in: range) {
-                Text("\(value.wrappedValue)").font(.system(size: 26, weight: .medium, design: .rounded))
-                    .monospacedDigit().frame(minWidth: 30)
-            }.fixedSize().accessibilityLabel(title)
-        }.padding(.horizontal, 19).padding(.vertical, 13)
-            .background(Theme.surface, in: RoundedRectangle(cornerRadius: 21))
+            Button { if value.wrappedValue > range.lowerBound { value.wrappedValue -= 1 } } label: {
+                Image(systemName: "minus.circle").font(.system(size: 26, weight: .ultraLight))
+                    .frame(width: 42, height: 42)
+            }.accessibilityLabel("Decrease \(title)")
+            Text("\(value.wrappedValue)").font(.system(size: 36, weight: .ultraLight))
+                .monospacedDigit().frame(minWidth: 48)
+            Button { if value.wrappedValue < range.upperBound { value.wrappedValue += 1 } } label: {
+                Image(systemName: "plus.circle").font(.system(size: 26, weight: .ultraLight))
+                    .frame(width: 42, height: 42)
+            }.accessibilityLabel("Increase \(title)")
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 21).padding(.vertical, 7)
+        .foregroundStyle(.white)
+        .background(title == "Rounds" ? Theme.blue : Color(red: 0.42, green: 0.48, blue: 0.61),
+                    in: RoundedRectangle(cornerRadius: 8))
     }
 }
 
@@ -248,7 +239,7 @@ private struct DurationEditor: View {
             .pickerStyle(.wheel).padding()
             .navigationTitle(title).navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
-        }.preferredColorScheme(.dark)
+        }.preferredColorScheme(.light)
     }
 }
 
@@ -273,6 +264,6 @@ private struct ExerciseEditor: View {
             }
             .navigationTitle("Your circuit").navigationBarTitleDisplayMode(.inline)
             .toolbar { ToolbarItem(placement: .confirmationAction) { Button("Done") { dismiss() } } }
-        }.preferredColorScheme(.dark)
+        }.preferredColorScheme(.light)
     }
 }

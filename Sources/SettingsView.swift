@@ -22,7 +22,7 @@ struct SettingsView: View {
                         ForEach(1...10, id: \.self) { Text("\($0) seconds before").tag($0) }
                     }
                 } header: { Text("Countdown warning") } footer: {
-                    Text("Choose when the countdown beeps begin before the next interval. Set 3 or 5 seconds, or turn the warning off. Voice mode speaks the same countdown.")
+                    Text("Choose when the countdown beeps begin before the next interval. Set 3 or 5 seconds, or turn the warning off. Each favorite remembers its own warning. Voice mode speaks the same countdown.")
                 }.listRowBackground(Theme.surface)
                 Section {
                     Toggle("Haptic countdown", isOn: $store.haptics)
@@ -46,7 +46,7 @@ struct SettingsView: View {
                 }.listRowBackground(Theme.surface)
             }
             .scrollContentBackground(.hidden).background(Theme.background)
-            .navigationTitle("Make it yours")
+            .navigationTitle("Settings")
         }
     }
 }

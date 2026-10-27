@@ -7,8 +7,8 @@ struct IntervalApp: App {
         WindowGroup {
             ContentView()
                 .environmentObject(store)
-                .preferredColorScheme(.dark)
-                .tint(Theme.lime)
+                .preferredColorScheme(.light)
+                .tint(Theme.blue)
         }
     }
 }

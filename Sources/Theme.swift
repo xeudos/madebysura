@@ -1,18 +1,20 @@
 import SwiftUI
 
 enum Theme {
-    static let background = Color(red: 0.055, green: 0.063, blue: 0.055)
-    static let surface = Color(red: 0.105, green: 0.118, blue: 0.105)
-    static let lime = Color(red: 0.82, green: 0.98, blue: 0.34)
-    static let cream = Color(red: 0.94, green: 0.94, blue: 0.87)
-    static let orange = Color(red: 1, green: 0.48, blue: 0.29)
-    static let blue = Color(red: 0.49, green: 0.72, blue: 1)
+    static let background = Color(uiColor: .systemGroupedBackground)
+    static let surface = Color(uiColor: .secondarySystemGroupedBackground)
+    static let lime = Color(red: 0.22, green: 0.72, blue: 0.38)
+    static let cream = Color.primary
+    static let orange = Color(red: 0.96, green: 0.65, blue: 0.20)
+    static let blue = Color(red: 0.19, green: 0.55, blue: 0.83)
+    static let red = Color(red: 0.91, green: 0.29, blue: 0.29)
     static func color(_ kind: PhaseKind) -> Color {
         switch kind {
         case .work: return lime
-        case .rest: return blue
-        case .recover: return Color(red: 0.76, green: 0.64, blue: 1)
-        case .prepare, .cooldown: return cream
+        case .rest: return red
+        case .recover: return Color(red: 0.58, green: 0.43, blue: 0.76)
+        case .prepare: return orange
+        case .cooldown: return blue
         }
     }
 }
@@ -26,11 +28,11 @@ struct BigButton: View {
         Button(action: action) {
             HStack(spacing: 12) {
                 Image(systemName: icon)
-                Text(title).font(.system(size: 19, weight: .bold, design: .rounded))
+                Text(title).font(.system(size: 21, weight: .semibold))
             }
             .frame(maxWidth: .infinity).padding(.vertical, 20)
-            .foregroundStyle(Theme.background)
-            .background(color, in: RoundedRectangle(cornerRadius: 25))
+            .foregroundStyle(.white)
+            .background(color, in: RoundedRectangle(cornerRadius: 10))
         }
         .buttonStyle(.plain)
     }
@@ -39,7 +41,7 @@ struct BigButton: View {
 struct SmallLabel: View {
     let title: String
     var body: some View {
-        Text(title.uppercased()).font(.system(size: 11, weight: .bold, design: .monospaced))
-            .tracking(2).foregroundStyle(.secondary)
+        Text(title.uppercased()).font(.system(size: 11, weight: .semibold))
+            .tracking(1).foregroundStyle(.secondary)
     }
 }

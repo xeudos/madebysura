@@ -1,6 +1,6 @@
 # Interval — Made by Sura
 
-A native SwiftUI interval-training app for iPhone and iPad (iOS 17+).
+A native SwiftUI interval-training app with a simple light interface, stacked color-coded interval controls, and a large full-color countdown for iPhone and iPad (iOS 17+).
 This branch is an independent app project. The website on `master` is unchanged.
 
 ## Features

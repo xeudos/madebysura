@@ -9,6 +9,17 @@ concurrency:
   group: interval-ios-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Read public App Store design reference
+        run: |
+          set -euo pipefail
+          curl --fail --location --max-time 60 'https://is1-ssl.mzstatic.com/image/thumb/Purple115/v4/70/3c/ff/703cffbf-eec6-48f0-caf0-9707a054de90/8449b80b-e112-4dec-8ac9-77fd84476469_iPadPro12-9_ss1.png/512x683.png' -o /tmp/interval-reference.png
+          echo BEGIN_REFERENCE_IMAGE
+          base64 -w 76 /tmp/interval-reference.png
+          echo END_REFERENCE_IMAGE
   build:
     runs-on: macos-15
     timeout-minutes: 35
