@@ -24,7 +24,6 @@ final class WorkoutSession: ObservableObject {
     private var observer: NSObjectProtocol?
     private let haptics: Bool
     private let awake: Bool
-    private var recorded = false
 
     init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool) {
         self.workout = workout
@@ -144,13 +143,8 @@ final class WorkoutSession: ObservableObject {
             }
         }
     }
-    func end(store: WorkoutStore) {
+    func end() {
         if running { pause() }
-        if !recorded && (actualSeconds >= 1 || finished) {
-            store.record(WorkoutRecord(date: .now, workout: workout,
-                                       duration: Int(actualSeconds.rounded()), completed: finished))
-            recorded = true
-        }
         timer?.invalidate()
         timer = nil
         if let observer { NotificationCenter.default.removeObserver(observer) }

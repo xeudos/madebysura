@@ -68,3 +68,32 @@ final class TimelineTests: XCTestCase {
         XCTAssertEqual(clockText(3601), "1:00:01")
     }
 }
+
+
+final class PreferencesTests: XCTestCase {
+    func testAppearanceAndFavoritesPersistWithoutCreatingHistory() async throws {
+        let suite = "IntervalTests.\(UUID().uuidString)"
+        let directory = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer {
+            UserDefaults.standard.removePersistentDomain(forName: suite)
+            try? FileManager.default.removeItem(at: directory)
+        }
+        try await MainActor.run {
+            let preferences = try XCTUnwrap(UserDefaults(suiteName: suite))
+            let first = WorkoutStore(defaults: preferences, storageFolder: directory)
+            XCTAssertEqual(first.appearance, .dark)
+            first.appearance = .light
+            first.draft.name = "Five-second favorite"
+            first.countdownSeconds = 5
+            first.savePreset()
+            let second = WorkoutStore(defaults: preferences, storageFolder: directory)
+            XCTAssertEqual(second.appearance, .light)
+            XCTAssertEqual(second.draft.countdownSeconds, 5)
+            XCTAssertEqual(second.presets.last?.name, "Five-second favorite")
+            XCTAssertEqual(second.presets.last?.countdownSeconds, 5)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: directory.appendingPathComponent("history.v1.json").path))
+            second.appearance = .system
+            XCTAssertEqual(WorkoutStore(defaults: preferences, storageFolder: directory).appearance, .system)
+        }
+    }
+}

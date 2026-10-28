@@ -1,7 +1,6 @@
 import SwiftUI
 
 struct SessionScreen: View {
-    @EnvironmentObject private var store: WorkoutStore
     @Environment(\.dismiss) private var dismiss
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var session: WorkoutSession
@@ -16,93 +15,100 @@ struct SessionScreen: View {
     var body: some View {
         GeometryReader { geometry in
             ScrollView {
-                VStack(spacing: 22) {
+                VStack(spacing: 24) {
                     HStack {
-                        Text(session.workout.name.isEmpty ? "Interval Timer" : session.workout.name)
-                            .font(.system(size: 18, weight: .medium)).lineLimit(1)
+                        VStack(alignment: .leading, spacing: 5) {
+                            SmallLabel(title: "Your session")
+                            Text(session.workout.name.isEmpty ? "My intervals" : session.workout.name)
+                                .font(.system(size: 16, weight: .semibold)).lineLimit(1)
+                        }
                         Spacer()
                         Button {
-                            if session.finished { close() }
-                            else { confirmEnd = true }
+                            if session.finished { close() } else { confirmEnd = true }
                         } label: {
-                            Image(systemName: "xmark").font(.system(size: 20, weight: .light))
-                                .frame(width: 42, height: 42)
-                        }.accessibilityLabel("End workout").disabled(session.preparing)
-                    }.padding(.bottom, 5)
+                            Image(systemName: "xmark").font(.system(size: 13, weight: .semibold))
+                                .frame(width: 38, height: 38).background(Theme.elevated, in: Circle())
+                        }.buttonStyle(.plain).accessibilityLabel("End workout").disabled(session.preparing)
+                    }
 
                     Spacer(minLength: 5)
                     if session.preparing {
-                        SwiftUI.ProgressView().tint(.white).scaleEffect(1.5).padding(40)
-                        Text("Preparing timer…").opacity(0.8)
+                        SwiftUI.ProgressView().tint(Theme.lime).scaleEffect(1.4).padding(40)
+                        Text("Preparing your timer…").font(.subheadline).foregroundStyle(.secondary)
                     } else if session.finished {
-                        Image(systemName: "checkmark.circle").font(.system(size: 85, weight: .ultraLight))
-                        Text("COMPLETE").font(.system(size: 32, weight: .light)).tracking(3)
+                        Image(systemName: "checkmark.circle")
+                            .font(.system(size: 76, weight: .ultraLight)).foregroundStyle(Theme.lime)
+                        Text("Session complete").font(.system(size: 30, weight: .semibold, design: .rounded))
                         Text(clockText(Int(session.actualSeconds.rounded())))
-                            .font(.system(size: 78, weight: .ultraLight)).monospacedDigit()
-                        Text("Time trained").font(.subheadline).opacity(0.8)
+                            .font(.system(size: 68, weight: .medium, design: .rounded)).monospacedDigit()
+                        Text("Time trained").font(.subheadline).foregroundStyle(.secondary)
                     } else {
                         Text(session.phase?.kind.title.uppercased() ?? "")
-                            .font(.system(size: 32, weight: .light)).tracking(4)
-                            .padding(.top, 12)
-                        Text(clockText(session.snapshot.remaining))
-                            .font(.system(size: 112, weight: .ultraLight))
-                            .monospacedDigit().minimumScaleFactor(0.35).lineLimit(1)
-                            .frame(maxWidth: .infinity).padding(.vertical, 14)
-                            .accessibilityLabel("\(session.snapshot.remaining) seconds remaining")
-                        Text(session.phase?.name == session.phase?.kind.title ? " " : (session.phase?.name ?? " "))
-                            .font(.system(size: 23, weight: .light)).lineLimit(2)
-                        if !session.running {
-                            Text("PAUSED").font(.system(size: 15, weight: .semibold)).tracking(3)
-                        }
-                        HStack(spacing: 55) {
-                            metric("\(max(1, session.phase?.round ?? 1)) / \(session.workout.rounds)", label: "ROUND")
-                            metric("\(max(1, session.phase?.set ?? 1)) / \(session.workout.sets)", label: "SET")
-                        }.padding(.vertical, 10)
+                            .font(.system(size: 12, weight: .semibold)).tracking(2)
+                            .foregroundStyle(color).padding(.horizontal, 17).padding(.vertical, 10)
+                            .background(color.opacity(0.1), in: Capsule())
 
-                        SwiftUI.ProgressView(value: session.snapshot.progress).tint(.white)
-                            .background(Color.white.opacity(0.15))
-                        HStack {
-                            Text("TOTAL REMAINING").font(.system(size: 11, weight: .semibold))
-                            Spacer()
-                            Text(clockText(session.snapshot.totalRemaining)).monospacedDigit()
-                        }.opacity(0.8)
-                        if let next = session.nextPhase {
+                        Text(clockText(session.snapshot.remaining))
+                            .font(.system(size: 106, weight: .medium, design: .rounded))
+                            .tracking(-5).monospacedDigit().minimumScaleFactor(0.35).lineLimit(1)
+                            .frame(maxWidth: .infinity).padding(.vertical, 8)
+                            .accessibilityLabel("\(session.snapshot.remaining) seconds remaining")
+
+                        Text(session.running
+                             ? (session.phase?.name == session.phase?.kind.title ? " " : (session.phase?.name ?? " "))
+                             : "Paused")
+                            .font(.system(size: 19, weight: .medium)).foregroundStyle(.secondary).lineLimit(2)
+
+                        HStack(spacing: 12) {
+                            metric("\(max(1, session.phase?.round ?? 1)) / \(session.workout.rounds)", label: "Round")
+                            metric("\(max(1, session.phase?.set ?? 1)) / \(session.workout.sets)", label: "Set")
+                        }.padding(.vertical, 6)
+
+                        VStack(spacing: 12) {
                             HStack {
-                                Text("NEXT").font(.system(size: 11, weight: .semibold))
+                                SmallLabel(title: "Remaining")
                                 Spacer()
-                                Text(next.name).lineLimit(1)
-                                Text(clockText(next.duration)).monospacedDigit()
-                            }.font(.system(size: 15))
-                                .padding(16).background(Color.black.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                                Text(clockText(session.snapshot.totalRemaining))
+                                    .font(.system(size: 14, weight: .medium)).monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                            }
+                            SwiftUI.ProgressView(value: session.snapshot.progress).tint(color)
+                        }.padding(.top, 8)
+                        if let next = session.nextPhase {
+                            HStack(spacing: 14) {
+                                SmallLabel(title: "Next")
+                                Text(next.name).font(.system(size: 14, weight: .medium)).lineLimit(1)
+                                Spacer()
+                                Text(clockText(next.duration)).font(.system(size: 14, weight: .medium))
+                                    .monospacedDigit().foregroundStyle(.secondary)
+                            }.padding(18).panel(radius: 18)
                         }
                     }
-                    Spacer(minLength: 15)
+                    Spacer(minLength: 10)
                     if session.finished {
-                        actionButton("DONE", icon: "checkmark") { close() }
+                        BigButton(title: "Done", icon: "checkmark") { close() }
                     } else if !session.preparing {
-                        HStack(spacing: 14) {
-                            actionButton(session.running ? "PAUSE" : "RESUME",
-                                         icon: session.running ? "pause.fill" : "play.fill") { session.toggle() }
+                        HStack(spacing: 12) {
+                            BigButton(title: session.running ? "Pause" : "Resume",
+                                      icon: session.running ? "pause.fill" : "play.fill", color: color) { session.toggle() }
                             Button { session.skip() } label: {
-                                Image(systemName: "forward.end").font(.system(size: 25, weight: .light))
-                                    .frame(width: 65, height: 65)
-                                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.7), lineWidth: 1))
-                            }.accessibilityLabel("Skip interval")
+                                Image(systemName: "forward.end.fill").font(.system(size: 18, weight: .medium))
+                                    .frame(width: 60, height: 60).background(Theme.elevated, in: RoundedRectangle(cornerRadius: 20))
+                            }.buttonStyle(.plain).accessibilityLabel("Skip interval")
                         }
                     }
                 }
-                .padding(.horizontal, 25).padding(.top, 12).padding(.bottom, 25)
+                .padding(.horizontal, 24).padding(.top, 15).padding(.bottom, 24)
                 .frame(minHeight: geometry.size.height)
                 .frame(maxWidth: 620).frame(maxWidth: .infinity)
             }
         }
-        .foregroundStyle(.white)
-        .background(color.ignoresSafeArea())
+        .background(Theme.background.ignoresSafeArea())
         .interactiveDismissDisabled()
         .task { await session.start() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { session.refresh() } }
         .confirmationDialog("End this workout?", isPresented: $confirmEnd, titleVisibility: .visible) {
-            Button("End & save progress", role: .destructive) { close() }
+            Button("End workout", role: .destructive) { close() }
             Button("Keep going", role: .cancel) {}
         }
         .alert("Audio unavailable", isPresented: Binding(
@@ -111,24 +117,14 @@ struct SessionScreen: View {
             Button("Continue") { session.error = nil }
         } message: { Text(session.error ?? "") }
     }
-    private func actionButton(_ title: String, icon: String, action: @escaping () -> Void) -> some View {
-        Button(action: action) {
-            HStack(spacing: 12) {
-                Image(systemName: icon)
-                Text(title).font(.system(size: 20, weight: .medium))
-            }
-            .frame(maxWidth: .infinity).frame(height: 65)
-            .overlay(RoundedRectangle(cornerRadius: 10).stroke(Color.white.opacity(0.7), lineWidth: 1))
-        }.buttonStyle(.plain)
-    }
     private func metric(_ value: String, label: String) -> some View {
-        VStack(spacing: 5) {
-            Text(label).font(.system(size: 11, weight: .semibold)).opacity(0.8)
-            Text(value).font(.system(size: 26, weight: .light)).monospacedDigit()
-        }
+        VStack(spacing: 7) {
+            SmallLabel(title: label)
+            Text(value).font(.system(size: 24, weight: .medium, design: .rounded)).monospacedDigit()
+        }.frame(maxWidth: .infinity).padding(.vertical, 18).panel(radius: 20)
     }
     private func close() {
-        session.end(store: store)
+        session.end()
         dismiss()
     }
 }

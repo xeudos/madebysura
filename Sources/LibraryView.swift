@@ -6,52 +6,59 @@ struct LibraryView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Favorite timers")
-                            .font(.system(size: 30, weight: .bold, design: .rounded)).tracking(-0.7)
-                        Text("Save different routines and load them in one tap.")
-                            .font(.subheadline).foregroundStyle(.secondary)
-                    }.padding(.vertical, 12).listRowBackground(Color.clear)
-                }
-                Section("Favorite timers") {
-                    ForEach(store.presets) { workout in
-                        Button {
-                            store.draft = workout
-                            tab = 0
-                        } label: {
-                            HStack(spacing: 16) {
-                                Image(systemName: "bolt.fill").font(.title3).foregroundStyle(Theme.lime)
-                                    .frame(width: 44, height: 50)
-                                    .background(Theme.lime.opacity(0.08), in: RoundedRectangle(cornerRadius: 14))
-                                VStack(alignment: .leading, spacing: 7) {
-                                    Text(workout.name).font(.headline).foregroundStyle(Theme.cream)
-                                    Text("\(workout.rounds) rounds · \(workout.sets) sets · \(clockText(workout.work))/\(clockText(workout.rest)) · \(workout.countdownSeconds)s cue")
-                                        .font(.caption).foregroundStyle(.secondary)
-                                }
-                                Spacer()
-                                Text(clockText(workout.totalDuration))
-                                    .font(.system(.subheadline, design: .rounded).weight(.semibold))
-                                    .foregroundStyle(Theme.lime)
-                            }.padding(.vertical, 8)
-                        }.listRowBackground(Theme.surface)
-                    }
-                    .onDelete { store.presets.remove(atOffsets: $0) }
-                }
                 if store.presets.isEmpty {
-                    Text("Save a workout from the Timer tab using the star button.")
-                        .foregroundStyle(.secondary).listRowBackground(Color.clear)
+                    ContentUnavailableView("No favorites yet", systemImage: "star",
+                        description: Text("Save a timer using the star on the Timer tab."))
+                        .listRowBackground(Color.clear)
                 }
+                ForEach(store.presets) { workout in
+                    Button {
+                        store.draft = workout
+                        tab = 0
+                    } label: {
+                        HStack(spacing: 15) {
+                            Image(systemName: "timer").font(.system(size: 22, weight: .light))
+                                .foregroundStyle(Theme.lime).frame(width: 47, height: 54)
+                                .background(Theme.lime.opacity(0.09), in: RoundedRectangle(cornerRadius: 16))
+                            VStack(alignment: .leading, spacing: 7) {
+                                Text(workout.name).font(.system(size: 17, weight: .semibold))
+                                    .foregroundStyle(.primary).lineLimit(1)
+                                Text("\(workout.rounds) rounds · \(workout.sets) sets")
+                                    .font(.system(size: 12)).foregroundStyle(.secondary)
+                                HStack(spacing: 8) {
+                                    Text("\(clockText(workout.work)) work").foregroundStyle(Theme.lime)
+                                    Text("\(clockText(workout.rest)) rest").foregroundStyle(Theme.red)
+                                }.font(.system(size: 10, weight: .medium))
+                            }
+                            Spacer(minLength: 8)
+                            VStack(alignment: .trailing, spacing: 8) {
+                                Text(clockText(workout.totalDuration))
+                                    .font(.system(size: 22, weight: .medium, design: .rounded))
+                                    .monospacedDigit().foregroundStyle(.primary)
+                                Text(workout.countdownSeconds == 0 ? "Cue off" : "\(workout.countdownSeconds)s cue")
+                                    .font(.system(size: 10)).foregroundStyle(.secondary)
+                            }
+                        }.padding(16).panel()
+                    }
+                    .buttonStyle(.plain)
+                    .listRowBackground(Color.clear).listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
+                }
+                .onDelete { store.presets.remove(atOffsets: $0) }
                 Section {
-                    Button("Restore starter workouts") {
+                    Button {
                         let names = Set(store.presets.map(\.name))
                         store.presets.append(contentsOf: Workout.presets.filter { !names.contains($0.name) })
-                    }.foregroundStyle(Theme.lime).listRowBackground(Theme.surface)
+                    } label: {
+                        Label("Restore starter timers", systemImage: "arrow.counterclockwise")
+                            .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
+                    }.listRowBackground(Color.clear)
                 }
             }
-            .scrollContentBackground(.hidden).background(Theme.background)
+            .listStyle(.plain).scrollContentBackground(.hidden)
+            .background(Theme.background)
             .navigationTitle("Favorites")
-            .toolbar { EditButton() }
+            .toolbar { if !store.presets.isEmpty { EditButton().tint(Theme.lime) } }
         }
     }
 }

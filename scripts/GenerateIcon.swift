@@ -4,9 +4,9 @@ import Foundation
 let size = NSSize(width: 1024, height: 1024)
 let image = NSImage(size: size)
 image.lockFocus()
-NSColor(calibratedRed: 0.055, green: 0.063, blue: 0.055, alpha: 1).setFill()
+NSColor(calibratedRed: 0.063, green: 0.067, blue: 0.078, alpha: 1).setFill()
 NSBezierPath(rect: NSRect(origin: .zero, size: size)).fill()
-let lime = NSColor(calibratedRed: 0.82, green: 0.98, blue: 0.34, alpha: 1)
+let lime = NSColor(calibratedRed: 0.65, green: 0.91, blue: 0.63, alpha: 1)
 let circle = NSBezierPath(ovalIn: NSRect(x: 225, y: 202, width: 574, height: 574))
 circle.lineWidth = 52
 lime.setStroke()

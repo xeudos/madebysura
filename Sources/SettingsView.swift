@@ -6,45 +6,54 @@ struct SettingsView: View {
         NavigationStack {
             Form {
                 Section {
+                    Picker("Appearance", selection: $store.appearance) {
+                        ForEach(AppearanceMode.allCases) { mode in
+                            Text(mode.rawValue).tag(mode)
+                        }
+                    }.pickerStyle(.segmented).padding(.vertical, 7)
+                } header: { Text("Appearance") }
+                    .listRowBackground(Theme.surface)
+
+                Section {
                     Picker("Audio guidance", selection: $store.cue) {
                         ForEach(CueMode.allCases, id: \.self) { Text($0.rawValue).tag($0) }
-                    }
-                    .pickerStyle(.segmented).padding(.vertical, 5)
-                } header: { Text("Your sound") } footer: {
+                    }.pickerStyle(.segmented).padding(.vertical, 7)
+                } header: { Text("Sound") } footer: {
                     Text(store.cue == .off
-                         ? "Silent mode: keep the app open to see your cues. Elapsed time catches up when you return."
-                         : "Audio cues continue with the screen locked and mix with your music. Phone calls pause the session. Voice guidance uses the English voice available on your iPhone.")
-                }
-                .listRowBackground(Theme.surface)
-                Section {
-                    Picker("Countdown starts", selection: $store.countdownSeconds) {
-                        Text("Off").tag(0)
-                        ForEach(1...10, id: \.self) { Text("\($0) seconds before").tag($0) }
-                    }
-                } header: { Text("Countdown warning") } footer: {
-                    Text("Choose when the countdown beeps begin before the next interval. Set 3 or 5 seconds, or turn the warning off. Each favorite remembers its own warning. Voice mode speaks the same countdown.")
+                         ? "Silent mode. Keep the app open to see your cues."
+                         : "Cues play with the screen locked and mix with your music. Calls pause the timer.")
                 }.listRowBackground(Theme.surface)
+
+                Section {
+                    Picker("Countdown warning", selection: $store.countdownSeconds) {
+                        Text("Off").tag(0)
+                        ForEach(1...10, id: \.self) { Text("\($0) seconds").tag($0) }
+                    }
+                } footer: {
+                    Text("When the warning begins before the next interval. Each favorite remembers its own setting.")
+                }.listRowBackground(Theme.surface)
+
                 Section {
                     Toggle("Haptic countdown", isOn: $store.haptics)
                     Toggle("Keep screen awake", isOn: $store.keepAwake)
                 } header: { Text("During your workout") } footer: {
-                    Text("Haptics work while the app is open. Your screen can still be locked manually.")
+                    Text("Haptics work while the app is open. You can still lock the screen manually.")
                 }.listRowBackground(Theme.surface)
+
                 Section {
-                    Label("No account needed", systemImage: "person.crop.circle.badge.checkmark")
-                    Label("History stays on this device", systemImage: "iphone")
-                    Label("No ads or subscriptions", systemImage: "heart")
-                } header: { Text("Made for your routine") }
+                    HStack(spacing: 13) {
+                        Image(systemName: "timer").font(.system(size: 24, weight: .light))
+                            .foregroundStyle(Theme.lime).frame(width: 44, height: 44)
+                            .background(Theme.lime.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text("Interval").font(.system(size: 17, weight: .semibold))
+                            Text("Made by Sura · 1.1").font(.caption).foregroundStyle(.secondary)
+                        }
+                    }.padding(.vertical, 6)
+                } footer: { Text("Your favorites stay on this device. No account, ads, or subscriptions.") }
                     .listRowBackground(Theme.surface)
-                Section {
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("Interval").font(.system(size: 26, weight: .bold, design: .rounded))
-                        Text("Made by Sura · 1.0").font(.subheadline).foregroundStyle(.secondary)
-                        Text("A personal interval timer inspired by the simple workout timers we love.")
-                            .font(.caption).foregroundStyle(.secondary)
-                    }.padding(.vertical, 10)
-                }.listRowBackground(Theme.surface)
             }
+            .tint(Theme.lime)
             .scrollContentBackground(.hidden).background(Theme.background)
             .navigationTitle("Settings")
         }

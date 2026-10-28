@@ -112,14 +112,6 @@ enum CueMode: String, CaseIterable, Codable {
     case voice = "Voice", beeps = "Beeps", off = "Off"
 }
 
-struct WorkoutRecord: Identifiable, Codable {
-    var id = UUID()
-    let date: Date
-    let workout: Workout
-    let duration: Int
-    let completed: Bool
-}
-
 func clockText(_ seconds: Int) -> String {
     let value = max(0, seconds)
     if value >= 3600 {
