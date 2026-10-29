@@ -121,3 +121,44 @@ final class FavoriteEditingTests: XCTestCase {
         }
     }
 }
+
+final class SkipCountdownTests: XCTestCase {
+    func testSecondTapSkipsImmediatelyAndSingleTapWaits() async throws {
+        let session = await MainActor.run {
+            WorkoutSession(workout: Workout(prepare: 0, work: 30, rest: 10, rounds: 3),
+                cue: .off, countdownSeconds: 3, haptics: false, awake: false, liveActivities: false, skipDelay: true)
+        }
+        await session.start()
+        await MainActor.run {
+            session.requestSkip()
+            XCTAssertEqual(session.skipCountdown, 3)
+            XCTAssertEqual(session.snapshot.index, 0)
+            session.requestSkip()
+            XCTAssertNil(session.skipCountdown)
+            XCTAssertEqual(session.snapshot.index, 1)
+            XCTAssertTrue(session.running)
+            session.requestSkip()
+            XCTAssertEqual(session.skipCountdown, 3)
+        }
+        try await Task.sleep(for: .milliseconds(3300))
+        await MainActor.run {
+            XCTAssertNil(session.skipCountdown)
+            XCTAssertEqual(session.snapshot.index, 2)
+            XCTAssertTrue(session.running)
+            session.end()
+        }
+    }
+    func testDisabledDelayAndEndingPendingSkip() async throws {
+        let session = await MainActor.run {
+            WorkoutSession(workout: Workout(prepare: 0, work: 30, rest: 10, rounds: 3),
+                cue: .off, countdownSeconds: 3, haptics: false, awake: false, liveActivities: false, skipDelay: false)
+        }
+        await session.start()
+        await MainActor.run {
+            session.requestSkip()
+            XCTAssertNil(session.skipCountdown)
+            XCTAssertEqual(session.snapshot.index, 1)
+            session.end()
+        }
+    }
+}

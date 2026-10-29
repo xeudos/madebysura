@@ -84,6 +84,11 @@ final class WorkoutSession: ObservableObject {
         timer = newTimer
     }
     func pause() {
+        if skipCountdown != nil {
+            skipTask?.cancel(); skipTask = nil; skipCountdown = nil
+            publishLive()
+            return
+        }
         guard running else { return }
         update()
         if finished { return }
@@ -105,6 +110,7 @@ final class WorkoutSession: ObservableObject {
         pause()
         guard !finished else { return }
         skipCountdown = 3
+        publishLive()
         guide.warning(3)
         skipTask = Task { [weak self] in
             do {
@@ -152,7 +158,14 @@ final class WorkoutSession: ObservableObject {
         update()
     }
     private func publishLive() {
-        if liveEnabled { live.sync(workout: workout, phase: phase, snapshot: snapshot, running: running) }
+        guard liveEnabled else { return }
+        if let seconds = skipCountdown {
+            let ready = WorkoutPhase(kind: .prepare, duration: 3, round: nextPhase?.round ?? 1,
+                                     set: nextPhase?.set ?? 1, name: "Next interval")
+            let state = TimelineSnapshot(index: -1, remaining: seconds,
+                totalRemaining: snapshot.totalRemaining + seconds, phaseProgress: 0, progress: snapshot.progress, finished: false)
+            live.sync(workout: workout, phase: ready, snapshot: state, running: true)
+        } else { live.sync(workout: workout, phase: phase, snapshot: snapshot, running: running) }
     }
     func refresh() { if running { update() } }
     private func update() {
