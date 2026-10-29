@@ -3,6 +3,15 @@
 A native SwiftUI interval timer for iPhone and iPad (iOS 17+).
 The app lives on `interval-timer-ios`; the website's `master` branch is separate.
 
+## Version 1.2.1
+
+- Separate three-beep skip preparation track: immediate higher beep on the first tap, then two countdown beeps. Voice mode retains spoken counting. The second tap stops preparation audio and advances immediately.
+- Live Activity requests happen while the app is visible, before audio preparation. Orphan cleanup completes before the new activity starts.
+- Visible Live Activity status, actual iOS request errors, retry, Settings shortcut, and installed widget-extension check.
+- Optional local notifications at interval boundaries and completion, rescheduled after pause/skip/restart. iOS caps pending notifications; long workouts reserve one completion alert and the next 59 boundaries.
+- Keep and sign the embedded widget extension when sideloading. Start a workout, allow notifications, then go Home or lock the phone. Dynamic Island requires a compatible iPhone; Lock Screen Live Activities do not require Dynamic Island.
+- Build and unit tests validate source and packaging. Signing and appearance on the user's device still require on-device verification.
+
 ## Version 1.2
 
 - Optional 3-second preparation after tapping Skip. A second tap bypasses the countdown. Paused sessions skip immediately.

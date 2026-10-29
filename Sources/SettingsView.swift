@@ -1,4 +1,5 @@
 import SwiftUI
+import ActivityKit
 
 struct SettingsView: View {
     @EnvironmentObject private var store: WorkoutStore
@@ -35,8 +36,18 @@ struct SettingsView: View {
 
                 Section {
                     Toggle("Lock Screen & Dynamic Island", isOn: $store.liveActivities)
+                    LabeledContent("Widget extension", value: LiveActivityController.extensionInstalled ? "Installed" : "Missing")
+                    LabeledContent("iPhone permission", value: ActivityAuthorizationInfo().areActivitiesEnabled ? "Allowed" : "Disabled")
+                    Button("Open iPhone Settings") {
+                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                    }
                 } header: { Text("Live Activity") } footer: {
-                    Text("Shows the current interval while you train. Tap it to return to the timer. Requires Live Activities to be allowed in iPhone Settings.")
+                    Text("Shows the current interval while you train. Tap it to return to the timer. Start a workout, then go Home or lock your iPhone. Dynamic Island requires a compatible iPhone. When sideloading, include the widget extension.")
+                }.listRowBackground(Theme.surface)
+                Section {
+                    Toggle("Interval notifications", isOn: $store.phaseNotifications)
+                } footer: {
+                    Text("Allows notifications at interval changes and workout completion while the app is in the background. Permission is requested when you start a workout.")
                 }.listRowBackground(Theme.surface)
                 Section {
                     Toggle("3-second skip countdown", isOn: $store.skipDelay)
@@ -57,7 +68,7 @@ struct SettingsView: View {
                             .background(Theme.lime.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Interval").font(.system(size: 17, weight: .semibold))
-                            Text("Made by Sura · 1.2").font(.caption).foregroundStyle(.secondary)
+                            Text("Made by Sura · 1.2.1").font(.caption).foregroundStyle(.secondary)
                         }
                     }.padding(.vertical, 6)
                 } footer: { Text("Your favorites stay on this device. No account, ads, or subscriptions.") }

@@ -6,9 +6,9 @@ struct SessionScreen: View {
     @StateObject private var session: WorkoutSession
     @State private var confirmEnd = false
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true, notifications: Bool = false) {
         _session = StateObject(wrappedValue: WorkoutSession(workout: workout, cue: cue,
-            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities, skipDelay: skipDelay))
+            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities, skipDelay: skipDelay, notifications: notifications))
     }
     private var color: Color { session.finished ? Theme.lime : Theme.color(session.skipCountdown != nil ? .prepare : (session.phase?.kind ?? .prepare)) }
 
@@ -52,7 +52,7 @@ struct SessionScreen: View {
                             .font(.system(size: 106, weight: .medium, design: .rounded))
                             .tracking(-5).monospacedDigit().minimumScaleFactor(0.35).lineLimit(1)
                             .frame(maxWidth: .infinity).padding(.vertical, 8)
-                            .accessibilityLabel("\(session.snapshot.remaining) seconds remaining")
+                            .accessibilityLabel("\(session.skipCountdown ?? session.snapshot.remaining) seconds remaining")
 
                         Text(session.skipCountdown != nil ? "Next interval" : session.running
                              ? (session.phase?.name == session.phase?.kind.title ? " " : (session.phase?.name ?? " "))
@@ -82,6 +82,23 @@ struct SessionScreen: View {
                                 Text(clockText(next.duration)).font(.system(size: 14, weight: .medium))
                                     .monospacedDigit().foregroundStyle(.secondary)
                             }.padding(18).panel(radius: 18)
+                        }
+                    }
+                    if !session.preparing && !session.finished {
+                        VStack(spacing: 8) {
+                            Text(session.liveStatus).font(.caption).foregroundStyle(.secondary)
+                                .multilineTextAlignment(.center)
+                            if session.liveNeedsAttention {
+                                HStack(spacing: 20) {
+                                    Button("Retry Live Activity") { session.retryLiveActivity() }
+                                    Button("iPhone Settings") {
+                                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
+                                    }
+                                }.font(.caption.weight(.semibold))
+                            }
+                            if let status = session.notificationStatus {
+                                Text(status).font(.caption).foregroundStyle(.secondary).multilineTextAlignment(.center)
+                            }
                         }
                     }
                     Spacer(minLength: 10)

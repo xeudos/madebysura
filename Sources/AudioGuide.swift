@@ -1,10 +1,10 @@
 import AVFoundation
-import AudioToolbox
 
 /// The audible cue track is rendered ahead of playback. iOS can play the real
 /// interval/countdown sounds with the screen locked without relying on timers.
 final class AudioGuide {
     private var player: AVAudioPlayer?
+    private var skipPlayer: AVAudioPlayer?
     private let speech = AVSpeechSynthesizer()
     private var trackURL: URL?
     var mode: CueMode = .voice
@@ -28,14 +28,49 @@ final class AudioGuide {
 
     func play(at elapsed: Double) {
         guard mode != .off else { return }
+        skipPlayer?.stop()
         player?.currentTime = elapsed
         player?.play()
     }
     func warning(_ seconds: Int) {
         if mode == .voice { say("\(seconds)") }
-        else if mode == .beeps { AudioServicesPlaySystemSound(1057) }
+    }
+    /// A separate, short PCM track gives immediate feedback in voice AND beep mode.
+    /// Its three tones keep playing even when the UI's countdown task is suspended.
+    func startSkipCountdown() {
+        guard mode != .off else { return }
+        do {
+            skipPlayer = try AVAudioPlayer(data: Self.skipCountdownAudio())
+            skipPlayer?.volume = 0.9
+            skipPlayer?.prepareToPlay()
+            skipPlayer?.play()
+        } catch { }
+        warning(3)
+    }
+    static func skipCountdownAudio() -> Data {
+        let rate = 16000
+        let samples = rate * 3
+        var data = Data()
+        func text(_ value: String) { data.append(contentsOf: value.utf8) }
+        func u16(_ value: UInt16) { var n = value.littleEndian; withUnsafeBytes(of: &n) { data.append(contentsOf: $0) } }
+        func u32(_ value: UInt32) { var n = value.littleEndian; withUnsafeBytes(of: &n) { data.append(contentsOf: $0) } }
+        text("RIFF"); u32(UInt32(36 + samples * 2)); text("WAVEfmt ")
+        u32(16); u16(1); u16(1); u32(UInt32(rate)); u32(UInt32(rate * 2)); u16(2); u16(16)
+        text("data"); u32(UInt32(samples * 2))
+        for frame in 0..<samples {
+            let time = Double(frame) / Double(rate)
+            let beat = Int(time)
+            let local = time - Double(beat)
+            let length = beat == 0 ? 0.22 : 0.13
+            let frequency = beat == 0 ? 1200.0 : 900.0
+            let envelope = local < length ? min(1, local / 0.006) * min(1, (length - local) / 0.02) : 0
+            let sample = Int16(sin(2 * .pi * frequency * local) * envelope * 20000)
+            u16(UInt16(bitPattern: sample))
+        }
+        return data
     }
     func pause() {
+        skipPlayer?.stop()
         player?.pause()
         speech.stopSpeaking(at: .immediate)
     }
@@ -49,6 +84,8 @@ final class AudioGuide {
         speech.speak(utterance)
     }
     func stop() {
+        skipPlayer?.stop()
+        skipPlayer = nil
         player?.stop()
         player = nil
         speech.stopSpeaking(at: .immediate)

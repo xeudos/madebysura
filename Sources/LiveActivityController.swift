@@ -1,19 +1,37 @@
 import ActivityKit
-import Foundation
+import Combine
+import UIKit
 
 @MainActor
-final class LiveActivityController {
+final class LiveActivityController: ObservableObject {
+    @Published private(set) var status = "Starting Live Activity…"
+    @Published private(set) var issue: String?
+    @Published private(set) var active = false
     private var activity: Activity<TimerActivityAttributes>?
     private var pending: Task<Void, Never>?
+    private var observation: Task<Void, Never>?
     private var lastKey = ""
-    private(set) var unavailable = false
+
+    static var extensionInstalled: Bool {
+        guard let url = Bundle.main.builtInPlugInsURL,
+              let children = try? FileManager.default.contentsOfDirectory(at: url, includingPropertiesForKeys: nil) else { return false }
+        return children.contains { url in
+            guard let bundle = Bundle(url: url),
+                  let info = bundle.infoDictionary?["NSExtension"] as? [String: Any] else { return false }
+            return info["NSExtensionPointIdentifier"] as? String == "com.apple.widgetkit-extension"
+        }
+    }
 
     static func clearOrphans() async {
         for activity in Activity<TimerActivityAttributes>.activities {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
     }
-
+    private func fail(_ message: String) {
+        active = false
+        issue = message
+        status = message
+    }
     func sync(workout: Workout, phase: WorkoutPhase?, snapshot: TimelineSnapshot, running: Bool) {
         guard let phase else { return }
         let key = "\(snapshot.index)-\(running)-\(snapshot.finished)"
@@ -27,34 +45,73 @@ final class LiveActivityController {
             phaseEnd: now.addingTimeInterval(Double(snapshot.remaining)),
             sessionEnd: now.addingTimeInterval(Double(snapshot.totalRemaining)),
             remaining: snapshot.remaining, paused: !running, finished: snapshot.finished)
+        let content = ActivityContent(state: state, staleDate: running ? state.phaseEnd : nil)
+
+        // Request synchronously while the app is visible, before audio preparation or permission sheets.
+        if activity == nil && !snapshot.finished {
+            guard Self.extensionInstalled else {
+                fail("Live Activity unavailable: widget extension is missing. Reinstall with app extensions included.")
+                return
+            }
+            guard ActivityAuthorizationInfo().areActivitiesEnabled else {
+                fail("Live Activities are disabled. Allow them in iPhone Settings → Interval.")
+                return
+            }
+            guard UIApplication.shared.applicationState == .active else {
+                fail("Return to the timer to start its Live Activity.")
+                return
+            }
+            do {
+                let created = try Activity.request(
+                    attributes: TimerActivityAttributes(name: String(workout.name.prefix(70))),
+                    content: content, pushType: nil)
+                activity = created
+                active = true
+                issue = nil
+                status = "Live Activity active · Go Home or lock your iPhone to view it."
+                observation?.cancel()
+                observation = Task { [weak self] in
+                    for await state in created.activityStateUpdates {
+                        guard !Task.isCancelled, let self else { return }
+                        if state == .dismissed || state == .ended {
+                            if self.activity?.id == created.id {
+                                self.activity = nil
+                                self.active = false
+                                self.status = "Live Activity ended."
+                            }
+                            return
+                        }
+                    }
+                }
+            } catch {
+                fail("Live Activity could not start: \(String(describing: error)). Check iPhone Settings and keep the widget extension when signing.")
+            }
+            return
+        }
+        guard let activity else { return }
         let prior = pending
         pending = Task { [self] in
             await prior?.value
-            let content = ActivityContent(state: state, staleDate: running ? state.phaseEnd : nil)
             if state.finished {
-                if let activity = self.activity {
-                    await activity.end(content, dismissalPolicy: .after(Date.now.addingTimeInterval(60)))
-                }
+                await activity.end(content, dismissalPolicy: .after(Date.now.addingTimeInterval(60)))
                 self.activity = nil
-            } else if let activity = self.activity {
+                active = false
+                status = "Workout complete."
+            } else {
                 await activity.update(content)
-            } else if ActivityAuthorizationInfo().areActivitiesEnabled {
-                do {
-                    self.activity = try Activity.request(
-                        attributes: TimerActivityAttributes(name: String(workout.name.prefix(70))),
-                        content: content, pushType: nil)
-                } catch { self.unavailable = true }
-            } else { self.unavailable = true }
+            }
         }
     }
     func invalidate() { lastKey = "" }
     func end() {
+        observation?.cancel()
         let prior = pending
-        pending = Task { [self] in
+        let ending = activity
+        activity = nil
+        active = false
+        pending = Task {
             await prior?.value
-            guard let activity = self.activity else { return }
-            await activity.end(nil, dismissalPolicy: .immediate)
-            self.activity = nil
+            if let ending { await ending.end(nil, dismissalPolicy: .immediate) }
         }
     }
 }

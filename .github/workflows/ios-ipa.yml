@@ -1,4 +1,4 @@
-name: Export tested Interval IPA
+name: Build Interval IPA
 on:
   push:
     branches: [interval-timer-export]
@@ -15,7 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
+      - name: Verify exact source from tested app branch
+        run: git diff --exit-code bbe26b351d07ddef32834fb7349ff5c01f82be0f HEAD -- Sources Shared LiveActivity Tests Resources project.yml scripts
       - name: Set up Node for REA
         uses: actions/setup-node@v4
         with:
@@ -28,12 +30,6 @@ jobs:
           if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
           swift scripts/GenerateIcon.swift
           xcodegen generate
-      - name: Verify source matches tested app
-        run: |
-          set -euo pipefail
-          test "$(git rev-parse HEAD^)" = "065db6d8cb4e47e535bf5d9cd7a083cb4d269b9a"
-          git diff --exit-code HEAD^ HEAD -- Sources Shared LiveActivity Tests Resources project.yml scripts
-          echo "Source identical to the app that passed tests in run 40918286342"
       - name: Build arm64 iPhone app
         run: |
           set -euo pipefail
@@ -52,7 +48,7 @@ jobs:
           zip -qry ../Interval-unsigned.ipa Payload
           cd ../..
           shasum -a 256 build/Interval-unsigned.ipa > build/Interval-unsigned.ipa.sha256
-          python3 -c 'import zipfile; z=zipfile.ZipFile("build/Interval-unsigned.ipa"); assert "Payload/Interval.app/Interval" in z.namelist(); assert z.testzip() is None'
+          python3 -c 'import plistlib, zipfile; z=zipfile.ZipFile("build/Interval-unsigned.ipa"); assert "Payload/Interval.app/Interval" in z.namelist(); assert z.testzip() is None; assert z.read("Payload/Interval.app/PlugIns/IntervalLiveActivity.appex/IntervalLiveActivity")[:4] == bytes.fromhex("cffaedfe"); assert plistlib.loads(z.read("Payload/Interval.app/Info.plist"))["NSSupportsLiveActivities"]'
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:
