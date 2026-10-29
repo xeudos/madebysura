@@ -97,3 +97,27 @@ final class PreferencesTests: XCTestCase {
         }
     }
 }
+
+final class FavoriteEditingTests: XCTestCase {
+    func testUpdatingAndDuplicatingPreservesIndependentTimers() async throws {
+        let suite = "favorites.\(UUID().uuidString)"
+        let folder = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { UserDefaults.standard.removePersistentDomain(forName: suite); try? FileManager.default.removeItem(at: folder) }
+        try await MainActor.run {
+            let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+            let store = WorkoutStore(defaults: defaults, storageFolder: folder)
+            let original = store.presets[0]
+            store.draft = original
+            store.draft.work = 42
+            store.updateFavorite()
+            XCTAssertEqual(store.presets[0].id, original.id)
+            XCTAssertEqual(store.presets[0].work, 42)
+            store.duplicateFavorite(store.presets[0])
+            XCTAssertNotEqual(store.presets.last?.id, original.id)
+            XCTAssertEqual(store.presets.last?.work, 42)
+            XCTAssertTrue(store.liveActivities)
+            store.liveActivities = false
+            XCTAssertFalse(WorkoutStore(defaults: defaults, storageFolder: folder).liveActivities)
+        }
+    }
+}

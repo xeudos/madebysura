@@ -2,6 +2,8 @@ import SwiftUI
 
 struct LibraryView: View {
     @EnvironmentObject private var store: WorkoutStore
+    @State private var search = ""
+    private var matching: [Workout] { store.presets.filter { search.isEmpty || $0.name.localizedCaseInsensitiveContains(search) } }
     @Binding var tab: Int
     var body: some View {
         NavigationStack {
@@ -11,7 +13,7 @@ struct LibraryView: View {
                         description: Text("Save a timer using the star on the Timer tab."))
                         .listRowBackground(Color.clear)
                 }
-                ForEach(store.presets) { workout in
+                ForEach(matching) { workout in
                     Button {
                         store.draft = workout
                         tab = 0
@@ -40,11 +42,18 @@ struct LibraryView: View {
                             }
                         }.padding(16).panel()
                     }
+                    .contextMenu {
+                        Button { store.duplicateFavorite(workout) } label: { Label("Duplicate", systemImage: "plus.square.on.square") }
+                        Button(role: .destructive) { store.presets.removeAll { $0.id == workout.id } } label: { Label("Delete", systemImage: "trash") }
+                    }
                     .buttonStyle(.plain)
                     .listRowBackground(Color.clear).listRowSeparator(.hidden)
                     .listRowInsets(EdgeInsets(top: 6, leading: 20, bottom: 6, trailing: 20))
                 }
-                .onDelete { store.presets.remove(atOffsets: $0) }
+                .onDelete { offsets in
+                    let ids = offsets.map { matching[$0].id }
+                    store.presets.removeAll { ids.contains($0.id) }
+                }
                 Section {
                     Button {
                         let names = Set(store.presets.map(\.name))
@@ -58,6 +67,7 @@ struct LibraryView: View {
             .listStyle(.plain).scrollContentBackground(.hidden)
             .background(Theme.background)
             .navigationTitle("Favorites")
+            .searchable(text: $search, prompt: "Find a timer")
             .toolbar { if !store.presets.isEmpty { EditButton().tint(Theme.lime) } }
         }
     }

@@ -34,6 +34,11 @@ struct SettingsView: View {
                 }.listRowBackground(Theme.surface)
 
                 Section {
+                    Toggle("Lock Screen & Dynamic Island", isOn: $store.liveActivities)
+                } header: { Text("Live Activity") } footer: {
+                    Text("Shows the current interval while you train. Tap it to return to the timer. Requires Live Activities to be allowed in iPhone Settings.")
+                }.listRowBackground(Theme.surface)
+                Section {
                     Toggle("Haptic countdown", isOn: $store.haptics)
                     Toggle("Keep screen awake", isOn: $store.keepAwake)
                 } header: { Text("During your workout") } footer: {
@@ -47,7 +52,7 @@ struct SettingsView: View {
                             .background(Theme.lime.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Interval").font(.system(size: 17, weight: .semibold))
-                            Text("Made by Sura · 1.1").font(.caption).foregroundStyle(.secondary)
+                            Text("Made by Sura · 1.2").font(.caption).foregroundStyle(.secondary)
                         }
                     }.padding(.vertical, 6)
                 } footer: { Text("Your favorites stay on this device. No account, ads, or subscriptions.") }

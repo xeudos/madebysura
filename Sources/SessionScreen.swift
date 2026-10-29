@@ -6,9 +6,9 @@ struct SessionScreen: View {
     @StateObject private var session: WorkoutSession
     @State private var confirmEnd = false
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true) {
         _session = StateObject(wrappedValue: WorkoutSession(workout: workout, cue: cue,
-            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake))
+            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities))
     }
     private var color: Color { session.finished ? Theme.lime : Theme.color(session.phase?.kind ?? .prepare) }
 
@@ -88,6 +88,10 @@ struct SessionScreen: View {
                     if session.finished {
                         BigButton(title: "Done", icon: "checkmark") { close() }
                     } else if !session.preparing {
+                        Button { session.restartInterval() } label: {
+                            Label("Restart interval", systemImage: "arrow.counterclockwise")
+                                .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
+                        }.buttonStyle(.plain)
                         HStack(spacing: 12) {
                             BigButton(title: session.running ? "Pause" : "Resume",
                                       icon: session.running ? "pause.fill" : "play.fill", color: color) { session.toggle() }

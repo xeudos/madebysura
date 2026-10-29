@@ -9,6 +9,7 @@ struct IntervalApp: App {
                 .environmentObject(store)
                 .preferredColorScheme(store.appearance.colorScheme)
                 .tint(Theme.blue)
+                .task { await LiveActivityController.clearOrphans() }
         }
     }
 }

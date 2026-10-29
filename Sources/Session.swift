@@ -15,6 +15,8 @@ final class WorkoutSession: ObservableObject {
     @Published var error: String?
     @Published private(set) var actualSeconds: Double = 0
 
+    private let live = LiveActivityController()
+    private let liveEnabled: Bool
     private var timer: Timer?
     private var beganAt: ContinuousClock.Instant?
     private var carried = 0.0
@@ -25,7 +27,8 @@ final class WorkoutSession: ObservableObject {
     private let haptics: Bool
     private let awake: Bool
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true) {
+        self.liveEnabled = liveActivities
         self.workout = workout
         self.phases = workout.phases
         self.cue = cue
@@ -87,6 +90,7 @@ final class WorkoutSession: ObservableObject {
         timer = nil
         guide.pause()
         UIApplication.shared.isIdleTimerDisabled = false
+        publishLive()
     }
     func toggle() { running ? pause() : resume() }
 
@@ -103,8 +107,23 @@ final class WorkoutSession: ObservableObject {
         lastCue = ""
         update()
     }
+    func restartInterval() {
+        guard !preparing, !finished else { return }
+        if running { update() }
+        guard !finished else { return }
+        carried = Double(phases.prefix(snapshot.index).reduce(0) { $0 + $1.duration })
+        accountedAt = carried
+        if running { beganAt = .now; guide.play(at: carried) }
+        live.invalidate()
+        lastCue = ""
+        update()
+    }
+    private func publishLive() {
+        if liveEnabled { live.sync(workout: workout, phase: phase, snapshot: snapshot, running: running) }
+    }
     func refresh() { if running { update() } }
     private func update() {
+        defer { publishLive() }
         let time = elapsed
         if running {
             actualSeconds += max(0, min(time, Double(workout.totalDuration)) - accountedAt)
@@ -149,6 +168,7 @@ final class WorkoutSession: ObservableObject {
         timer = nil
         if let observer { NotificationCenter.default.removeObserver(observer) }
         observer = nil
+        live.end()
         guide.stop()
         UIApplication.shared.isIdleTimerDisabled = false
     }

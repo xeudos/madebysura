@@ -155,7 +155,7 @@ struct TimerHome: View {
             .sheet(isPresented: $showExercises) { ExerciseEditor() }
             .fullScreenCover(isPresented: $showSession) {
                 SessionScreen(workout: store.draft, cue: store.cue, countdownSeconds: store.countdownSeconds,
-                              haptics: store.haptics, awake: store.keepAwake)
+                              haptics: store.haptics, awake: store.keepAwake, liveActivities: store.liveActivities)
             }
             .alert("Favorite saved", isPresented: $showSaved) {
                 Button("Done", role: .cancel) {}
@@ -169,9 +169,11 @@ struct TimerHome: View {
                 TextField("Workout name", text: $store.draft.name)
                     .font(.system(size: 18, weight: .semibold))
                     .accessibilityLabel("Workout name")
-                Button {
-                    store.savePreset()
-                    showSaved = true
+                Menu {
+                    if store.presets.contains(where: { $0.id == store.draft.id }) {
+                        Button("Update this favorite") { store.updateFavorite(); showSaved = true }
+                    }
+                    Button("Save as new favorite") { store.savePreset(); showSaved = true }
                 } label: {
                     Image(systemName: "star").font(.system(size: 17, weight: .medium))
                         .foregroundStyle(Theme.lime).frame(width: 38, height: 38)

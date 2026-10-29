@@ -6,6 +6,7 @@ final class WorkoutStore: ObservableObject {
     @Published var draft: Workout { didSet { save(draft, key: "draft.v1") } }
     @Published var presets: [Workout] { didSet { save(presets, key: "presets.v1") } }
     @Published var appearance: AppearanceMode { didSet { defaults.set(appearance.rawValue, forKey: "appearance.v1") } }
+    @Published var liveActivities: Bool { didSet { defaults.set(liveActivities, forKey: "live.v1") } }
     @Published var cue: CueMode { didSet { defaults.set(cue.rawValue, forKey: "cue.v1") } }
     @Published var haptics: Bool { didSet { defaults.set(haptics, forKey: "haptics.v1") } }
     @Published var keepAwake: Bool { didSet { defaults.set(keepAwake, forKey: "awake.v1") } }
@@ -32,6 +33,7 @@ final class WorkoutStore: ObservableObject {
         draft = loaded.validationMessage == nil ? loaded : Workout()
         presets = load("presets.v1", fallback: Workout.presets)
         appearance = AppearanceMode(rawValue: defaults.string(forKey: "appearance.v1") ?? "") ?? .dark
+        liveActivities = defaults.object(forKey: "live.v1") == nil ? true : defaults.bool(forKey: "live.v1")
         cue = CueMode(rawValue: defaults.string(forKey: "cue.v1") ?? "") ?? .voice
         haptics = defaults.object(forKey: "haptics.v1") == nil ? true : defaults.bool(forKey: "haptics.v1")
         keepAwake = defaults.object(forKey: "awake.v1") == nil ? true : defaults.bool(forKey: "awake.v1")
@@ -46,6 +48,19 @@ final class WorkoutStore: ObservableObject {
         var copy = draft
         copy.id = UUID()
         if copy.name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty { copy.name = "My intervals" }
+        presets.append(copy)
+    }
+}
+
+extension WorkoutStore {
+    func updateFavorite() {
+        guard draft.validationMessage == nil, let index = presets.firstIndex(where: { $0.id == draft.id }) else { return }
+        presets[index] = draft
+    }
+    func duplicateFavorite(_ workout: Workout) {
+        var copy = workout
+        copy.id = UUID()
+        copy.name += " copy"
         presets.append(copy)
     }
 }

@@ -3,6 +3,15 @@
 A native SwiftUI interval timer for iPhone and iPad (iOS 17+).
 The app lives on `interval-timer-ios`; the website's `master` branch is separate.
 
+## Version 1.2
+
+- Live Activity for Lock Screen and compact, minimal, and expanded Dynamic Island.
+- Countdown, phase, round/set, pause and completion state; tap to reopen the timer.
+- Live Activities can be disabled in Settings. The widget is embedded in the IPA.
+- Search and duplicate favorites; update a selected favorite without creating duplicates.
+- Restart the current interval without ending the session.
+- In silent mode, if iOS suspends the app, stale phase information is replaced by an overall countdown and an open-timer prompt. Force-quitting ends audio; reopening clears any orphaned activity.
+
 ## Version 1.1
 
 - Refined interface with charcoal surfaces, soft phase accents, rounded panels, and a pinned Start button.
