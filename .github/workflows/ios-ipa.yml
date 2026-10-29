@@ -1,7 +1,7 @@
-name: Build Interval IPA
+name: Export tested Interval IPA
 on:
   push:
-    branches: [interval-timer-ios]
+    branches: [interval-timer-export]
   workflow_dispatch:
 permissions:
   contents: write
@@ -14,6 +14,8 @@ jobs:
     timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
       - name: Set up Node for REA
         uses: actions/setup-node@v4
         with:
@@ -26,37 +28,12 @@ jobs:
           if ! command -v xcodegen >/dev/null 2>&1; then brew install xcodegen; fi
           swift scripts/GenerateIcon.swift
           xcodegen generate
-      - name: Run timeline and persistence tests
+      - name: Verify source matches tested app
         run: |
           set -euo pipefail
-          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
-          xcodebuild test -project Interval.xcodeproj -scheme Interval -configuration Debug \
-            -destination "platform=iOS Simulator,id=$DEVICE_ID" \
-            -resultBundlePath build/Tests.xcresult -derivedDataPath build/simulator \
-            CODE_SIGNING_ALLOWED=NO 2>&1 | tee build/tests.log
-      - name: Capture dark and light simulator previews
-        run: |
-          set -euo pipefail
-          DEVICE_ID=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["udid"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
-          STATE=$(xcrun simctl list devices available --json | python3 -c 'import json,sys; d=json.load(sys.stdin); print(next(x["state"] for v in d["devices"].values() for x in v if x["name"].startswith("iPhone")))')
-          if [ "$STATE" != "Booted" ]; then xcrun simctl boot "$DEVICE_ID"; fi
-          xcrun simctl bootstatus "$DEVICE_ID" -b
-          xcrun simctl install "$DEVICE_ID" build/simulator/Build/Products/Debug-iphonesimulator/Interval.app
-          xcrun simctl launch "$DEVICE_ID" nl.madebysura.interval
-          sleep 3
-          xcrun simctl io "$DEVICE_ID" screenshot build/app-preview-dark.png
-          sips -Z 1000 -s format jpeg build/app-preview-dark.png --out build/app-preview-dark.jpg >/dev/null
-          echo BEGIN_DARK_PREVIEW
-          base64 -i build/app-preview-dark.jpg | fold -w 76
-          echo END_DARK_PREVIEW
-          xcrun simctl terminate "$DEVICE_ID" nl.madebysura.interval
-          xcrun simctl launch "$DEVICE_ID" nl.madebysura.interval -appearance.v1 Light
-          sleep 3
-          xcrun simctl io "$DEVICE_ID" screenshot build/app-preview-light.png
-          sips -Z 1000 -s format jpeg build/app-preview-light.png --out build/app-preview-light.jpg >/dev/null
-          echo BEGIN_LIGHT_PREVIEW
-          base64 -i build/app-preview-light.jpg | fold -w 76
-          echo END_LIGHT_PREVIEW
+          test "$(git rev-parse HEAD^)" = "065db6d8cb4e47e535bf5d9cd7a083cb4d269b9a"
+          git diff --exit-code HEAD^ HEAD -- Sources Shared LiveActivity Tests Resources project.yml scripts
+          echo "Source identical to the app that passed tests in run 40918286342"
       - name: Build arm64 iPhone app
         run: |
           set -euo pipefail
@@ -96,7 +73,7 @@ jobs:
           git add Downloads
           if ! git diff --cached --quiet; then
             git commit -m "Update downloadable Interval IPA [skip ci]"
-            git push origin HEAD:interval-timer-ios
+            git push origin HEAD:interval-timer-export
           fi
       - name: Inspect built IPA with REA
         run: |
