@@ -5,6 +5,8 @@ The app lives on `interval-timer-ios`; the website's `master` branch is separate
 
 ## Version 1.2
 
+- Optional 3-second preparation after tapping Skip. A second tap bypasses the countdown. Paused sessions skip immediately.
+
 - Live Activity for Lock Screen and compact, minimal, and expanded Dynamic Island.
 - Countdown, phase, round/set, pause and completion state; tap to reopen the timer.
 - Live Activities can be disabled in Settings. The widget is embedded in the IPA.

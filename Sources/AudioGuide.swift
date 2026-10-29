@@ -1,4 +1,5 @@
 import AVFoundation
+import AudioToolbox
 
 /// The audible cue track is rendered ahead of playback. iOS can play the real
 /// interval/countdown sounds with the screen locked without relying on timers.
@@ -29,6 +30,10 @@ final class AudioGuide {
         guard mode != .off else { return }
         player?.currentTime = elapsed
         player?.play()
+    }
+    func warning(_ seconds: Int) {
+        if mode == .voice { say("\(seconds)") }
+        else if mode == .beeps { AudioServicesPlaySystemSound(1057) }
     }
     func pause() {
         player?.pause()

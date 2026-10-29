@@ -12,6 +12,9 @@ final class WorkoutSession: ObservableObject {
     @Published private(set) var running = false
     @Published private(set) var preparing = true
     @Published private(set) var finished = false
+    @Published private(set) var skipCountdown: Int?
+    private var skipTask: Task<Void, Never>?
+    private let skipDelay: Bool
     @Published var error: String?
     @Published private(set) var actualSeconds: Double = 0
 
@@ -27,7 +30,8 @@ final class WorkoutSession: ObservableObject {
     private let haptics: Bool
     private let awake: Bool
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true) {
+        self.skipDelay = skipDelay
         self.liveEnabled = liveActivities
         self.workout = workout
         self.phases = workout.phases
@@ -94,6 +98,35 @@ final class WorkoutSession: ObservableObject {
     }
     func toggle() { running ? pause() : resume() }
 
+    func requestSkip() {
+        guard !preparing, !finished else { return }
+        if skipCountdown != nil { finishSkip(); return }
+        guard skipDelay && running else { skip(); return }
+        pause()
+        guard !finished else { return }
+        skipCountdown = 3
+        guide.warning(3)
+        skipTask = Task { [weak self] in
+            do {
+                for seconds in [2, 1] {
+                    try await Task.sleep(for: .seconds(1))
+                    guard let self, !Task.isCancelled else { return }
+                    self.skipCountdown = seconds
+                    self.guide.warning(seconds)
+                }
+                try await Task.sleep(for: .seconds(1))
+                guard let self, !Task.isCancelled else { return }
+                self.finishSkip()
+            } catch { }
+        }
+    }
+    private func finishSkip() {
+        skipTask?.cancel()
+        skipTask = nil
+        skipCountdown = nil
+        skip()
+        if !finished { resume() }
+    }
     func skip() {
         guard !finished, !preparing else { return }
         if running { update() }
@@ -163,6 +196,9 @@ final class WorkoutSession: ObservableObject {
         }
     }
     func end() {
+        skipTask?.cancel()
+        skipTask = nil
+        skipCountdown = nil
         if running { pause() }
         timer?.invalidate()
         timer = nil

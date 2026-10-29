@@ -6,11 +6,11 @@ struct SessionScreen: View {
     @StateObject private var session: WorkoutSession
     @State private var confirmEnd = false
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true) {
         _session = StateObject(wrappedValue: WorkoutSession(workout: workout, cue: cue,
-            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities))
+            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities, skipDelay: skipDelay))
     }
-    private var color: Color { session.finished ? Theme.lime : Theme.color(session.phase?.kind ?? .prepare) }
+    private var color: Color { session.finished ? Theme.lime : Theme.color(session.skipCountdown != nil ? .prepare : (session.phase?.kind ?? .prepare)) }
 
     var body: some View {
         GeometryReader { geometry in
@@ -43,18 +43,18 @@ struct SessionScreen: View {
                             .font(.system(size: 68, weight: .medium, design: .rounded)).monospacedDigit()
                         Text("Time trained").font(.subheadline).foregroundStyle(.secondary)
                     } else {
-                        Text(session.phase?.kind.title.uppercased() ?? "")
+                        Text(session.skipCountdown != nil ? "GET READY" : (session.phase?.kind.title.uppercased() ?? ""))
                             .font(.system(size: 12, weight: .semibold)).tracking(2)
                             .foregroundStyle(color).padding(.horizontal, 17).padding(.vertical, 10)
                             .background(color.opacity(0.1), in: Capsule())
 
-                        Text(clockText(session.snapshot.remaining))
+                        Text(clockText(session.skipCountdown ?? session.snapshot.remaining))
                             .font(.system(size: 106, weight: .medium, design: .rounded))
                             .tracking(-5).monospacedDigit().minimumScaleFactor(0.35).lineLimit(1)
                             .frame(maxWidth: .infinity).padding(.vertical, 8)
                             .accessibilityLabel("\(session.snapshot.remaining) seconds remaining")
 
-                        Text(session.running
+                        Text(session.skipCountdown != nil ? "Next interval" : session.running
                              ? (session.phase?.name == session.phase?.kind.title ? " " : (session.phase?.name ?? " "))
                              : "Paused")
                             .font(.system(size: 19, weight: .medium)).foregroundStyle(.secondary).lineLimit(2)
@@ -91,11 +91,11 @@ struct SessionScreen: View {
                         Button { session.restartInterval() } label: {
                             Label("Restart interval", systemImage: "arrow.counterclockwise")
                                 .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
-                        }.buttonStyle(.plain)
+                        }.buttonStyle(.plain).disabled(session.skipCountdown != nil)
                         HStack(spacing: 12) {
-                            BigButton(title: session.running ? "Pause" : "Resume",
-                                      icon: session.running ? "pause.fill" : "play.fill", color: color) { session.toggle() }
-                            Button { session.skip() } label: {
+                            BigButton(title: session.skipCountdown != nil ? "Skip now" : (session.running ? "Pause" : "Resume"),
+                                      icon: session.running ? "pause.fill" : "play.fill", color: color) { if session.skipCountdown != nil { session.requestSkip() } else { session.toggle() } }
+                            Button { session.requestSkip() } label: {
                                 Image(systemName: "forward.end.fill").font(.system(size: 18, weight: .medium))
                                     .frame(width: 60, height: 60).background(Theme.elevated, in: RoundedRectangle(cornerRadius: 20))
                             }.buttonStyle(.plain).accessibilityLabel("Skip interval")

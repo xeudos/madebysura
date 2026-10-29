@@ -39,6 +39,11 @@ struct SettingsView: View {
                     Text("Shows the current interval while you train. Tap it to return to the timer. Requires Live Activities to be allowed in iPhone Settings.")
                 }.listRowBackground(Theme.surface)
                 Section {
+                    Toggle("3-second skip countdown", isOn: $store.skipDelay)
+                } footer: {
+                    Text("Tap Skip once for 3 seconds to get ready. Tap again during the countdown to skip immediately. Paused timers skip immediately.")
+                }.listRowBackground(Theme.surface)
+                Section {
                     Toggle("Haptic countdown", isOn: $store.haptics)
                     Toggle("Keep screen awake", isOn: $store.keepAwake)
                 } header: { Text("During your workout") } footer: {

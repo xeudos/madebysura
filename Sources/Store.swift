@@ -6,6 +6,7 @@ final class WorkoutStore: ObservableObject {
     @Published var draft: Workout { didSet { save(draft, key: "draft.v1") } }
     @Published var presets: [Workout] { didSet { save(presets, key: "presets.v1") } }
     @Published var appearance: AppearanceMode { didSet { defaults.set(appearance.rawValue, forKey: "appearance.v1") } }
+    @Published var skipDelay: Bool { didSet { defaults.set(skipDelay, forKey: "skipDelay.v1") } }
     @Published var liveActivities: Bool { didSet { defaults.set(liveActivities, forKey: "live.v1") } }
     @Published var cue: CueMode { didSet { defaults.set(cue.rawValue, forKey: "cue.v1") } }
     @Published var haptics: Bool { didSet { defaults.set(haptics, forKey: "haptics.v1") } }
@@ -33,6 +34,7 @@ final class WorkoutStore: ObservableObject {
         draft = loaded.validationMessage == nil ? loaded : Workout()
         presets = load("presets.v1", fallback: Workout.presets)
         appearance = AppearanceMode(rawValue: defaults.string(forKey: "appearance.v1") ?? "") ?? .dark
+        skipDelay = defaults.object(forKey: "skipDelay.v1") == nil ? true : defaults.bool(forKey: "skipDelay.v1")
         liveActivities = defaults.object(forKey: "live.v1") == nil ? true : defaults.bool(forKey: "live.v1")
         cue = CueMode(rawValue: defaults.string(forKey: "cue.v1") ?? "") ?? .voice
         haptics = defaults.object(forKey: "haptics.v1") == nil ? true : defaults.bool(forKey: "haptics.v1")
