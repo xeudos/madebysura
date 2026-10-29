@@ -1,4 +1,6 @@
 import XCTest
+import ActivityKit
+import UIKit
 @testable import Interval
 
 final class TimelineTests: XCTestCase {
@@ -159,6 +161,46 @@ final class SkipCountdownTests: XCTestCase {
             XCTAssertNil(session.skipCountdown)
             XCTAssertEqual(session.snapshot.index, 1)
             session.end()
+        }
+    }
+}
+
+final class SkipAudioAndNotificationTests: XCTestCase {
+    func testSkipAudioHasImmediateToneAndThreeAudibleBeats() throws {
+        let data = AudioGuide.skipCountdownAudio()
+        XCTAssertEqual(String(data: data.prefix(4), encoding: .ascii), "RIFF")
+        XCTAssertEqual(data.count, 44 + 16000 * 3 * 2)
+        func energy(at seconds: Double) -> Int {
+            let start = 44 + Int(seconds * 16000) * 2
+            return stride(from: start, to: start + 1600, by: 2).reduce(0) { sum, i in
+                let raw = UInt16(data[i]) | (UInt16(data[i + 1]) << 8)
+                return sum + abs(Int(Int16(bitPattern: raw)))
+            }
+        }
+        for beat in [0.01, 1.01, 2.01] { XCTAssertGreaterThan(energy(at: beat), 100000) }
+        for gap in [0.5, 1.5, 2.5] { XCTAssertEqual(energy(at: gap), 0) }
+    }
+    func testNotificationsFollowSkippedTimelineAndKeepCompletionWithinLimit() async {
+        await MainActor.run {
+            let workout = Workout(prepare: 3, work: 10, rest: 5, rounds: 2, sets: 1, recovery: 0, cooldown: 0)
+            let events = PhaseNotifications.events(workout: workout, elapsed: 13)
+            XCTAssertEqual(events.map { $0.delay }, [5, 15])
+            XCTAssertEqual(events.last?.title, "Workout complete")
+            XCTAssertTrue(PhaseNotifications.events(workout: workout, elapsed: 28).isEmpty)
+            let long = Workout(prepare: 3, work: 10, rest: 5, rounds: 60, sets: 2)
+            let capped = PhaseNotifications.events(workout: long, elapsed: 0)
+            XCTAssertEqual(capped.count, 60)
+            XCTAssertEqual(capped.last?.title, "Workout complete")
+            XCTAssertEqual(capped.last?.delay, Double(long.totalDuration))
+        }
+    }
+}
+
+final class LiveActivityPackagingTests: XCTestCase {
+    func testHostHasLiveActivityFlagAndEmbeddedWidget() async {
+        await MainActor.run {
+            XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "NSSupportsLiveActivities") as? Bool, true)
+            XCTAssertTrue(LiveActivityController.extensionInstalled, "The installed host must include its WidgetKit extension.")
         }
     }
 }
