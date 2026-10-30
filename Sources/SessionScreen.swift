@@ -5,14 +5,12 @@ struct SessionScreen: View {
     @Environment(\.scenePhase) private var scenePhase
     @StateObject private var session: WorkoutSession
     @State private var confirmEnd = false
-    @State private var showBackgroundDetails = false
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true, notifications: Bool = false) {
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, skipDelay: Bool = true) {
         _session = StateObject(wrappedValue: WorkoutSession(workout: workout, cue: cue,
-            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, liveActivities: liveActivities, skipDelay: skipDelay, notifications: notifications))
+            countdownSeconds: countdownSeconds, haptics: haptics, awake: awake, skipDelay: skipDelay))
     }
     private var color: Color { session.finished ? Theme.lime : Theme.color(session.skipCountdown != nil ? .prepare : (session.phase?.kind ?? .prepare)) }
-    private var hasBackgroundIssue: Bool { session.liveNeedsAttention || session.notificationStatus != nil }
     private var subtitle: String? {
         if session.skipCountdown != nil { return "Next interval" }
         if !session.running { return "Paused" }
@@ -85,11 +83,7 @@ struct SessionScreen: View {
                                     .monospacedDigit().foregroundStyle(.secondary)
                             }.padding(18).panel(radius: 18)
                         }
-                        Button { showBackgroundDetails = true } label: {
-                            Label(hasBackgroundIssue ? "Background features need setup" : "Background features",
-                                  systemImage: hasBackgroundIssue ? "info.circle" : "wave.3.right")
-                                .font(.caption).foregroundStyle(.secondary).frame(minHeight: 44)
-                        }.buttonStyle(.plain).accessibilityIdentifier("session.backgroundDetails")
+
                     }
                     Spacer(minLength: 0)
                 }
@@ -104,7 +98,6 @@ struct SessionScreen: View {
         .interactiveDismissDisabled()
         .task { await session.start() }
         .onChange(of: scenePhase) { _, phase in if phase == .active { session.refresh() } }
-        .sheet(isPresented: $showBackgroundDetails) { backgroundDetails }
         .confirmationDialog("End this workout?", isPresented: $confirmEnd, titleVisibility: .visible) {
             Button("End workout", role: .destructive) { close() }
             Button("Keep going", role: .cancel) {}
@@ -144,43 +137,6 @@ struct SessionScreen: View {
         .padding(.horizontal, 24).padding(.top, 8).padding(.bottom, 12)
         .background(Theme.background)
         .overlay(alignment: .top) { Theme.border.opacity(0.5).frame(height: 0.5) }
-    }
-    private var backgroundDetails: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 22) {
-                    if RuntimeEnvironment.isLiveContainer {
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Running in LiveContainer").font(.headline)
-                            Text("Live Activities need a widget extension, which LiveContainer cannot register for this app. Install Interval as a separate app to use the Lock Screen timer and Dynamic Island.")
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Live Activity").font(.headline)
-                        Text(session.liveStatus).foregroundStyle(.secondary)
-                        if !RuntimeEnvironment.isLiveContainer && session.liveNeedsAttention {
-                            Button("Retry Live Activity") { session.retryLiveActivity() }
-                        }
-                    }
-                    VStack(alignment: .leading, spacing: 10) {
-                        Text("Interval notifications").font(.headline)
-                        Text(session.notificationStatus ?? "Notifications follow your preferences and iOS permissions.")
-                            .foregroundStyle(.secondary)
-                        if RuntimeEnvironment.isLiveContainer {
-                            Text("In LiveContainer, open Interval’s app settings and enable Fix Local Notifications, then relaunch Interval. Also allow notifications for LiveContainer in iPhone Settings.")
-                        }
-                        Button("Check notification permission") { Task { await session.retryNotifications() } }
-                    }
-                    Button("Open iPhone Settings") {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                    }
-                }.font(.subheadline).padding(24)
-            }.background(Theme.background)
-                .navigationTitle("Background features").navigationBarTitleDisplayMode(.inline)
-                .toolbar { ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") { showBackgroundDetails = false }.accessibilityIdentifier("diagnostics.done")
-                } }
-        }.tint(Theme.lime).presentationDetents([.medium, .large])
     }
     private func metric(_ value: String, label: String) -> some View {
         VStack(spacing: 7) {

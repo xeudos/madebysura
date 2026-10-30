@@ -1,11 +1,7 @@
 import SwiftUI
-import ActivityKit
 
 struct SettingsView: View {
     @EnvironmentObject private var store: WorkoutStore
-    @Environment(\.scenePhase) private var scenePhase
-    @StateObject private var notificationCheck = PhaseNotifications()
-    @State private var sendingTest = false
     var body: some View {
         NavigationStack {
             Form {
@@ -38,41 +34,6 @@ struct SettingsView: View {
                 }.listRowBackground(Theme.surface)
 
                 Section {
-                    Toggle("Lock Screen & Dynamic Island", isOn: $store.liveActivities)
-                    if RuntimeEnvironment.isLiveContainer {
-                        Text(RuntimeEnvironment.liveActivityLimitation).font(.footnote).foregroundStyle(.secondary)
-                    } else {
-                        LabeledContent("Widget extension", value: LiveActivityController.extensionInstalled ? "Installed" : "Missing")
-                    }
-                    LabeledContent("iPhone permission", value: ActivityAuthorizationInfo().areActivitiesEnabled ? "Allowed" : "Disabled")
-                    Button("Open iPhone Settings") {
-                        if let url = URL(string: UIApplication.openSettingsURLString) { UIApplication.shared.open(url) }
-                    }
-                } header: { Text("Live Activity") } footer: {
-                    Text("Shows the current interval while you train. Tap it to return to the timer. Start a workout, then go Home or lock your iPhone. Dynamic Island requires a compatible iPhone. When sideloading, include the widget extension.")
-                }.listRowBackground(Theme.surface)
-                Section {
-                    Toggle("Interval notifications", isOn: $store.phaseNotifications)
-                    LabeledContent("iPhone permission", value: notificationCheck.permissionSummary)
-                    if !notificationCheck.deliverySummary.isEmpty {
-                        Text(notificationCheck.deliverySummary).font(.footnote).foregroundStyle(.secondary)
-                    }
-                    Button {
-                        sendingTest = true
-                        Task {
-                            await notificationCheck.sendTest()
-                            sendingTest = false
-                        }
-                    } label: {
-                        Label(sendingTest ? "Scheduling test…" : "Send test notification", systemImage: "bell.badge")
-                    }.disabled(sendingTest)
-                    if let message = notificationCheck.status {
-                        Text(message).font(.footnote).foregroundStyle(.secondary)
-                    }
-                } footer: {
-                    Text(RuntimeEnvironment.isLiveContainer ? RuntimeEnvironment.notificationSetup : "Allows notifications at interval changes and workout completion while the app is in the background. Permission is requested when you start a workout.")
-                }.listRowBackground(Theme.surface)
-                Section {
                     Toggle("3-second skip countdown", isOn: $store.skipDelay)
                 } footer: {
                     Text("Tap Skip once for 3 seconds to get ready. Tap again during the countdown to skip immediately. Paused timers skip immediately.")
@@ -91,7 +52,7 @@ struct SettingsView: View {
                             .background(Theme.lime.opacity(0.1), in: RoundedRectangle(cornerRadius: 14))
                         VStack(alignment: .leading, spacing: 4) {
                             Text("Interval").font(.system(size: 17, weight: .semibold))
-                            Text("Made by Sura · 1.2.3").font(.caption).foregroundStyle(.secondary)
+                            Text("Made by Sura · 1.2.4").font(.caption).foregroundStyle(.secondary)
                         }
                     }.padding(.vertical, 6)
                 } footer: { Text("Your favorites stay on this device. No account, ads, or subscriptions.") }
@@ -100,10 +61,6 @@ struct SettingsView: View {
             .tint(Theme.lime)
             .scrollContentBackground(.hidden).background(Theme.background)
             .navigationTitle("Settings")
-            .task { await notificationCheck.refreshPermission() }
-            .onChange(of: scenePhase) { _, phase in
-                if phase == .active { Task { await notificationCheck.refreshPermission() } }
-            }
         }
     }
 }

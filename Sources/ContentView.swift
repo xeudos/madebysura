@@ -155,7 +155,7 @@ struct TimerHome: View {
             .sheet(isPresented: $showExercises) { ExerciseEditor() }
             .fullScreenCover(isPresented: $showSession) {
                 SessionScreen(workout: store.draft, cue: store.cue, countdownSeconds: store.countdownSeconds,
-                              haptics: store.haptics, awake: store.keepAwake, liveActivities: store.liveActivities, skipDelay: store.skipDelay, notifications: store.phaseNotifications)
+                              haptics: store.haptics, awake: store.keepAwake, skipDelay: store.skipDelay)
             }
             .alert("Favorite saved", isPresented: $showSaved) {
                 Button("Done", role: .cancel) {}

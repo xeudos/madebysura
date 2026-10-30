@@ -1,5 +1,4 @@
 import XCTest
-import ActivityKit
 import UIKit
 @testable import Interval
 
@@ -117,9 +116,6 @@ final class FavoriteEditingTests: XCTestCase {
             store.duplicateFavorite(store.presets[0])
             XCTAssertNotEqual(store.presets.last?.id, original.id)
             XCTAssertEqual(store.presets.last?.work, 42)
-            XCTAssertTrue(store.liveActivities)
-            store.liveActivities = false
-            XCTAssertFalse(WorkoutStore(defaults: defaults, storageFolder: folder).liveActivities)
         }
     }
 }
@@ -128,7 +124,7 @@ final class SkipCountdownTests: XCTestCase {
     func testSecondTapSkipsImmediatelyAndSingleTapWaits() async throws {
         let session = await MainActor.run {
             WorkoutSession(workout: Workout(prepare: 0, work: 30, rest: 10, rounds: 3),
-                cue: .off, countdownSeconds: 3, haptics: false, awake: false, liveActivities: false, skipDelay: true)
+                cue: .off, countdownSeconds: 3, haptics: false, awake: false, skipDelay: true)
         }
         await session.start()
         await MainActor.run {
@@ -153,7 +149,7 @@ final class SkipCountdownTests: XCTestCase {
     func testDisabledDelayAndEndingPendingSkip() async throws {
         let session = await MainActor.run {
             WorkoutSession(workout: Workout(prepare: 0, work: 30, rest: 10, rounds: 3),
-                cue: .off, countdownSeconds: 3, haptics: false, awake: false, liveActivities: false, skipDelay: false)
+                cue: .off, countdownSeconds: 3, haptics: false, awake: false, skipDelay: false)
         }
         await session.start()
         await MainActor.run {
@@ -179,28 +175,5 @@ final class SkipAudioAndNotificationTests: XCTestCase {
         }
         for beat in [0.01, 1.01, 2.01] { XCTAssertGreaterThan(energy(at: beat), 100000) }
         for gap in [0.5, 1.5, 2.5] { XCTAssertEqual(energy(at: gap), 0) }
-    }
-    func testNotificationsFollowSkippedTimelineAndKeepCompletionWithinLimit() async {
-        await MainActor.run {
-            let workout = Workout(prepare: 3, work: 10, rest: 5, rounds: 2, sets: 1, recovery: 0, cooldown: 0)
-            let events = PhaseNotifications.events(workout: workout, elapsed: 13)
-            XCTAssertEqual(events.map { $0.delay }, [5, 15])
-            XCTAssertEqual(events.last?.title, "Workout complete")
-            XCTAssertTrue(PhaseNotifications.events(workout: workout, elapsed: 28).isEmpty)
-            let long = Workout(prepare: 3, work: 10, rest: 5, rounds: 60, sets: 2)
-            let capped = PhaseNotifications.events(workout: long, elapsed: 0)
-            XCTAssertEqual(capped.count, 60)
-            XCTAssertEqual(capped.last?.title, "Workout complete")
-            XCTAssertEqual(capped.last?.delay, Double(long.totalDuration))
-        }
-    }
-}
-
-final class LiveActivityPackagingTests: XCTestCase {
-    func testHostHasLiveActivityFlagAndEmbeddedWidget() async {
-        await MainActor.run {
-            XCTAssertEqual(Bundle.main.object(forInfoDictionaryKey: "NSSupportsLiveActivities") as? Bool, true)
-            XCTAssertTrue(LiveActivityController.extensionInstalled, "The installed host must include its WidgetKit extension.")
-        }
     }
 }

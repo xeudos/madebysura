@@ -9,25 +9,23 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1,2"
     CODE_SIGNING_ALLOWED: NO
-    MARKETING_VERSION: "1.2.3"
-    CURRENT_PROJECT_VERSION: "6"
+    MARKETING_VERSION: "1.2.4"
+    CURRENT_PROJECT_VERSION: "7"
 targets:
   Interval:
     type: application
     platform: iOS
     sources:
       - path: Sources
-      - path: Shared
       - path: Resources/Assets.xcassets
       - path: Resources/PrivacyInfo.xcprivacy
     info:
       path: Resources/Info.plist
       properties:
         CFBundleDisplayName: Interval
-        CFBundleShortVersionString: "1.2.3"
-        CFBundleVersion: "6"
+        CFBundleShortVersionString: "1.2.4"
+        CFBundleVersion: "7"
         UILaunchScreen: {}
-        NSSupportsLiveActivities: true
         CFBundleURLTypes:
           - CFBundleURLSchemes: [interval]
         UIBackgroundModes: [audio]
@@ -42,32 +40,10 @@ targets:
           - UIInterfaceOrientationLandscapeLeft
           - UIInterfaceOrientationLandscapeRight
         ITSAppUsesNonExemptEncryption: false
-    dependencies:
-      - target: IntervalLiveActivity
-        embed: true
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: nl.madebysura.interval
         ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
-  IntervalLiveActivity:
-    type: app-extension
-    platform: iOS
-    sources:
-      - path: LiveActivity
-      - path: Shared
-    info:
-      path: Resources/WidgetInfo.plist
-      properties:
-        CFBundleDisplayName: Interval Live
-        CFBundleShortVersionString: "1.2.3"
-        CFBundleVersion: "6"
-        NSExtension:
-          NSExtensionPointIdentifier: com.apple.widgetkit-extension
-    settings:
-      base:
-        PRODUCT_BUNDLE_IDENTIFIER: nl.madebysura.interval.live
-        APPLICATION_EXTENSION_API_ONLY: YES
-        SKIP_INSTALL: YES
   IntervalUITests:
     type: bundle.ui-testing
     platform: iOS

@@ -8,7 +8,7 @@ struct IntervalApp: App {
         if ProcessInfo.processInfo.arguments.contains("--session-ui-test") {
             SessionScreen(workout: Workout(name: "Sporten", prepare: 0, work: 60, rest: 30, rounds: 3),
                           cue: .off, countdownSeconds: 3, haptics: false, awake: false,
-                          liveActivities: true, skipDelay: true, notifications: false)
+                          skipDelay: true)
         } else { ContentView() }
         #else
         ContentView()

@@ -15,20 +15,16 @@ final class SessionControlsTests: XCTestCase {
         XCTAssertGreaterThanOrEqual(button.frame.minY, app.frame.minY, file: file, line: line)
         XCTAssertLessThanOrEqual(button.frame.maxY, app.frame.maxY, file: file, line: line)
     }
-    func testControlsStayVisibleWithLiveContainerErrorAndSecondSkipTap() {
+    func testControlsStayVisibleAndSecondSkipTap() {
         let app = launch()
         let skip = app.buttons["session.skip"]
         let primary = app.buttons["session.primary"]
         assertVisible(skip, in: app)
         assertVisible(primary, in: app)
         let screenshot = XCTAttachment(screenshot: app.screenshot())
-        screenshot.name = "Pinned controls with LiveContainer setup notice"
+        screenshot.name = "Pinned timer controls"
         screenshot.lifetime = .keepAlways
         add(screenshot)
-        app.buttons["session.backgroundDetails"].tap()
-        XCTAssertTrue(app.staticTexts["Running in LiveContainer"].waitForExistence(timeout: 5))
-        app.buttons["diagnostics.done"].tap()
-        assertVisible(skip, in: app)
         skip.tap()
         XCTAssertTrue(primary.label.contains("Skip now"))
         skip.tap()

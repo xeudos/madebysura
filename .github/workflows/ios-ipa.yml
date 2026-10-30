@@ -44,7 +44,7 @@ jobs:
           zip -qry ../Interval-unsigned.ipa Payload
           cd ../..
           shasum -a 256 build/Interval-unsigned.ipa > build/Interval-unsigned.ipa.sha256
-          python3 -c 'import plistlib, zipfile; z=zipfile.ZipFile("build/Interval-unsigned.ipa"); assert "Payload/Interval.app/Interval" in z.namelist(); assert z.testzip() is None; assert z.read("Payload/Interval.app/PlugIns/IntervalLiveActivity.appex/IntervalLiveActivity")[:4] == bytes.fromhex("cffaedfe"); assert plistlib.loads(z.read("Payload/Interval.app/Info.plist"))["NSSupportsLiveActivities"]'
+          python3 -c 'import plistlib, zipfile; z=zipfile.ZipFile("build/Interval-unsigned.ipa"); assert "Payload/Interval.app/Interval" in z.namelist(); assert z.testzip() is None; assert not any(".appex/" in n for n in z.namelist()); assert not plistlib.loads(z.read("Payload/Interval.app/Info.plist")).get("NSSupportsLiveActivities", False)'
       - name: Upload IPA
         uses: actions/upload-artifact@v4
         with:

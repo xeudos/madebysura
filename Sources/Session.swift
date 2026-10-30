@@ -18,16 +18,6 @@ final class WorkoutSession: ObservableObject {
     @Published var error: String?
     @Published private(set) var actualSeconds: Double = 0
 
-    private let live = LiveActivityController()
-    private let notifications = PhaseNotifications()
-    private let notificationsEnabled: Bool
-    private var liveObserver: AnyCancellable?
-    private var notificationObserver: AnyCancellable?
-    var liveStatus: String { liveEnabled ? live.status : "Live Activity is off" }
-    var liveNeedsAttention: Bool { live.issue != nil }
-    var notificationStatus: String? { notifications.status }
-
-    private let liveEnabled: Bool
     private var timer: Timer?
     private var beganAt: ContinuousClock.Instant?
     private var carried = 0.0
@@ -38,10 +28,8 @@ final class WorkoutSession: ObservableObject {
     private let haptics: Bool
     private let awake: Bool
 
-    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, liveActivities: Bool = true, skipDelay: Bool = true, notifications: Bool = false) {
-        self.notificationsEnabled = notifications
+    init(workout: Workout, cue: CueMode, countdownSeconds: Int, haptics: Bool, awake: Bool, skipDelay: Bool = true) {
         self.skipDelay = skipDelay
-        self.liveEnabled = liveActivities
         self.workout = workout
         self.phases = workout.phases
         self.cue = cue
@@ -49,8 +37,6 @@ final class WorkoutSession: ObservableObject {
         self.haptics = haptics
         self.awake = awake
         snapshot = .at(0, phases: workout.phases)
-        liveObserver = live.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
-        notificationObserver = self.notifications.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
     var phase: WorkoutPhase? {
         phases.indices.contains(snapshot.index) ? phases[snapshot.index] : nil
@@ -66,12 +52,6 @@ final class WorkoutSession: ObservableObject {
 
     func start() async {
         guard preparing else { return }
-        // Finish cleanup before requesting our activity, so it cannot end a new session.
-        if liveEnabled {
-            await LiveActivityController.clearOrphans()
-            publishLive()
-        }
-        if notificationsEnabled { await notifications.authorize() }
         guide.mode = cue
         guide.countdownSeconds = countdownSeconds
         do { try await guide.prepare(phases: phases) }
@@ -93,7 +73,6 @@ final class WorkoutSession: ObservableObject {
         running = true
         UIApplication.shared.isIdleTimerDisabled = awake
         guide.play(at: carried)
-        if notificationsEnabled { notifications.schedule(workout: workout, elapsed: carried) }
         update()
         let newTimer = Timer(timeInterval: 0.1, repeats: true) { [weak self] _ in
             Task { @MainActor in self?.update() }
@@ -105,7 +84,6 @@ final class WorkoutSession: ObservableObject {
         if skipCountdown != nil {
             skipTask?.cancel(); skipTask = nil; skipCountdown = nil
             guide.pause()
-            publishLive()
             return
         }
         guard running else { return }
@@ -117,9 +95,7 @@ final class WorkoutSession: ObservableObject {
         timer?.invalidate()
         timer = nil
         guide.pause()
-        notifications.cancel()
         UIApplication.shared.isIdleTimerDisabled = false
-        publishLive()
     }
     func toggle() { running ? pause() : resume() }
 
@@ -130,7 +106,6 @@ final class WorkoutSession: ObservableObject {
         pause()
         guard !finished else { return }
         skipCountdown = 3
-        publishLive()
         guide.startSkipCountdown()
         skipTask = Task { [weak self] in
             do {
@@ -163,7 +138,6 @@ final class WorkoutSession: ObservableObject {
         if running {
             beganAt = .now
             guide.play(at: carried)
-            if notificationsEnabled { notifications.schedule(workout: workout, elapsed: carried) }
         }
         lastCue = ""
         update()
@@ -175,37 +149,11 @@ final class WorkoutSession: ObservableObject {
         carried = Double(phases.prefix(snapshot.index).reduce(0) { $0 + $1.duration })
         accountedAt = carried
         if running { beganAt = .now; guide.play(at: carried) }
-        if running && notificationsEnabled { notifications.schedule(workout: workout, elapsed: carried) }
-        live.invalidate()
         lastCue = ""
         update()
     }
-    private func publishLive() {
-        guard liveEnabled else { return }
-        if let seconds = skipCountdown {
-            let ready = WorkoutPhase(kind: .prepare, duration: 3, round: nextPhase?.round ?? 1,
-                                     set: nextPhase?.set ?? 1, name: "Next interval")
-            let state = TimelineSnapshot(index: -1, remaining: seconds,
-                totalRemaining: snapshot.totalRemaining + seconds, phaseProgress: 0, progress: snapshot.progress, finished: false)
-            live.sync(workout: workout, phase: ready, snapshot: state, running: true)
-        } else { live.sync(workout: workout, phase: phase, snapshot: snapshot, running: running) }
-    }
-    func retryNotifications() async {
-        guard notificationsEnabled else { return }
-        await notifications.authorize()
-        if running { notifications.schedule(workout: workout, elapsed: elapsed) }
-        objectWillChange.send()
-    }
-    func retryLiveActivity() {
-        live.invalidate()
-        publishLive()
-    }
-    func refresh() {
-        if running { update() }
-        if liveEnabled && !live.active { retryLiveActivity() }
-    }
+    func refresh() { if running { update() } }
     private func update() {
-        defer { publishLive() }
         let time = elapsed
         if running {
             actualSeconds += max(0, min(time, Double(workout.totalDuration)) - accountedAt)
@@ -214,7 +162,6 @@ final class WorkoutSession: ObservableObject {
         let previous = snapshot
         snapshot = .at(time, phases: phases)
         if snapshot.finished {
-            notifications.finish()
             finished = true
             running = false
             carried = Double(workout.totalDuration)
@@ -254,8 +201,6 @@ final class WorkoutSession: ObservableObject {
         timer = nil
         if let observer { NotificationCenter.default.removeObserver(observer) }
         observer = nil
-        if finished { notifications.finish() } else { notifications.cancel() }
-        live.end()
         guide.stop()
         UIApplication.shared.isIdleTimerDisabled = false
     }
