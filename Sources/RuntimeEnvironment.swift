@@ -1,7 +1,8 @@
 import Foundation
+import Darwin
 
 enum RuntimeEnvironment {
-    static var isLiveContainer: Bool { isLiveContainer(environment: ProcessInfo.processInfo.environment) }
+    static var isLiveContainer: Bool { getenv("LC_HOME_PATH") != nil }
     static func isLiveContainer(environment: [String: String]) -> Bool {
         environment["LC_HOME_PATH"] != nil
     }
