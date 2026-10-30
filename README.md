@@ -3,6 +3,13 @@
 A native SwiftUI interval timer for iPhone and iPad (iOS 17+).
 The app lives on `interval-timer-ios`; the website's `master` branch is separate.
 
+## Version 1.2.3
+
+- Keep the completion notification after a workout finishes, including when closing its completion screen. Early ending, pausing and rescheduling still cancel obsolete alerts.
+- Add a five-second test notification in Settings, permission status, and Lock Screen/Notification Center/alert delivery settings.
+- Notification status updates are observed immediately in the session details.
+- Account for time spent queueing local notifications so their delays stay aligned with interval boundaries.
+
 ## Version 1.2.2
 
 - Pause/Resume, Skip and Restart are pinned in a bottom safe-area dock outside the scroll content. Skip has a visible text label.

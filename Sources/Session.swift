@@ -22,6 +22,7 @@ final class WorkoutSession: ObservableObject {
     private let notifications = PhaseNotifications()
     private let notificationsEnabled: Bool
     private var liveObserver: AnyCancellable?
+    private var notificationObserver: AnyCancellable?
     var liveStatus: String { liveEnabled ? live.status : "Live Activity is off" }
     var liveNeedsAttention: Bool { live.issue != nil }
     var notificationStatus: String? { notifications.status }
@@ -49,6 +50,7 @@ final class WorkoutSession: ObservableObject {
         self.awake = awake
         snapshot = .at(0, phases: workout.phases)
         liveObserver = live.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
+        notificationObserver = self.notifications.objectWillChange.sink { [weak self] _ in self?.objectWillChange.send() }
     }
     var phase: WorkoutPhase? {
         phases.indices.contains(snapshot.index) ? phases[snapshot.index] : nil
@@ -212,7 +214,7 @@ final class WorkoutSession: ObservableObject {
         let previous = snapshot
         snapshot = .at(time, phases: phases)
         if snapshot.finished {
-            notifications.cancel()
+            notifications.finish()
             finished = true
             running = false
             carried = Double(workout.totalDuration)
@@ -252,7 +254,7 @@ final class WorkoutSession: ObservableObject {
         timer = nil
         if let observer { NotificationCenter.default.removeObserver(observer) }
         observer = nil
-        notifications.cancel()
+        if finished { notifications.finish() } else { notifications.cancel() }
         live.end()
         guide.stop()
         UIApplication.shared.isIdleTimerDisabled = false

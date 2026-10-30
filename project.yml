@@ -9,8 +9,8 @@ settings:
     SWIFT_VERSION: "5.0"
     TARGETED_DEVICE_FAMILY: "1,2"
     CODE_SIGNING_ALLOWED: NO
-    MARKETING_VERSION: "1.2.2"
-    CURRENT_PROJECT_VERSION: "5"
+    MARKETING_VERSION: "1.2.3"
+    CURRENT_PROJECT_VERSION: "6"
 targets:
   Interval:
     type: application
@@ -24,8 +24,8 @@ targets:
       path: Resources/Info.plist
       properties:
         CFBundleDisplayName: Interval
-        CFBundleShortVersionString: "1.2.2"
-        CFBundleVersion: "5"
+        CFBundleShortVersionString: "1.2.3"
+        CFBundleVersion: "6"
         UILaunchScreen: {}
         NSSupportsLiveActivities: true
         CFBundleURLTypes:
@@ -59,8 +59,8 @@ targets:
       path: Resources/WidgetInfo.plist
       properties:
         CFBundleDisplayName: Interval Live
-        CFBundleShortVersionString: "1.2.2"
-        CFBundleVersion: "5"
+        CFBundleShortVersionString: "1.2.3"
+        CFBundleVersion: "6"
         NSExtension:
           NSExtensionPointIdentifier: com.apple.widgetkit-extension
     settings:
