@@ -23,6 +23,7 @@ final class LiveActivityController: ObservableObject {
     }
 
     static func clearOrphans() async {
+        guard !RuntimeEnvironment.isLiveContainer else { return }
         for activity in Activity<TimerActivityAttributes>.activities {
             await activity.end(nil, dismissalPolicy: .immediate)
         }
@@ -49,6 +50,10 @@ final class LiveActivityController: ObservableObject {
 
         // Request synchronously while the app is visible, before audio preparation or permission sheets.
         if activity == nil && !snapshot.finished {
+            guard !RuntimeEnvironment.isLiveContainer else {
+                fail(RuntimeEnvironment.liveActivityLimitation)
+                return
+            }
             guard Self.extensionInstalled else {
                 fail("Live Activity unavailable: widget extension is missing. Reinstall with app extensions included.")
                 return

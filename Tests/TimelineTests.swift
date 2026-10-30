@@ -204,3 +204,11 @@ final class LiveActivityPackagingTests: XCTestCase {
         }
     }
 }
+
+final class RuntimeEnvironmentTests: XCTestCase {
+    func testOnlyLiveContainerMarkerEnablesCompatibilityMessage() {
+        XCTAssertTrue(RuntimeEnvironment.isLiveContainer(environment: ["LC_HOME_PATH": "/host"]))
+        XCTAssertFalse(RuntimeEnvironment.isLiveContainer(environment: [:]))
+        XCTAssertFalse(RuntimeEnvironment.isLiveContainer(environment: ["HOME": "/app"]))
+    }
+}

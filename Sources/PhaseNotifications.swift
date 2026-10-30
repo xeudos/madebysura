@@ -20,9 +20,12 @@ final class PhaseNotifications {
             } else {
                 authorized = [.authorized, .provisional, .ephemeral].contains(settings.authorizationStatus)
             }
-            status = authorized ? nil : "Notifications are disabled. Allow them in iPhone Settings → Interval → Notifications."
+            status = authorized ? nil : (RuntimeEnvironment.isLiveContainer
+                ? RuntimeEnvironment.notificationSetup
+                : "Notifications are disabled. Allow them in iPhone Settings → Interval → Notifications.")
         } catch {
-            status = "Notifications could not be enabled: \(error.localizedDescription)"
+            status = RuntimeEnvironment.isLiveContainer ? RuntimeEnvironment.notificationSetup
+                : "Notifications could not be enabled: \(error.localizedDescription)"
         }
     }
     static func events(workout: Workout, elapsed: Double) -> [(delay: Double, title: String, body: String)] {

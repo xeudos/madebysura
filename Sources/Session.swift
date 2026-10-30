@@ -188,6 +188,12 @@ final class WorkoutSession: ObservableObject {
             live.sync(workout: workout, phase: ready, snapshot: state, running: true)
         } else { live.sync(workout: workout, phase: phase, snapshot: snapshot, running: running) }
     }
+    func retryNotifications() async {
+        guard notificationsEnabled else { return }
+        await notifications.authorize()
+        if running { notifications.schedule(workout: workout, elapsed: elapsed) }
+        objectWillChange.send()
+    }
     func retryLiveActivity() {
         live.invalidate()
         publishLive()

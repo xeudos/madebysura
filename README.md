@@ -3,6 +3,14 @@
 A native SwiftUI interval timer for iPhone and iPad (iOS 17+).
 The app lives on `interval-timer-ios`; the website's `master` branch is separate.
 
+## Version 1.2.2
+
+- Pause/Resume, Skip and Restart are pinned in a bottom safe-area dock outside the scroll content. Skip has a visible text label.
+- Background-feature status and error details are in a separate sheet so they cannot displace workout controls.
+- LiveContainer is detected via its LC_HOME_PATH environment marker. The app explains the guest-extension limitation instead of retrying unsupported Live Activities.
+- Local notification support remains enabled in LiveContainer; its documented Fix Local Notifications setting is shown when permission fails.
+- UI regression tests check on-screen, tappable controls with LiveContainer diagnostics and large accessibility text, including the second-tap skip action.
+
 ## Version 1.2.1
 
 - Separate three-beep skip preparation track: immediate higher beep on the first tap, then two countdown beeps. Voice mode retains spoken counting. The second tap stops preparation audio and advances immediately.
