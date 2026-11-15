@@ -56,6 +56,9 @@ document.addEventListener('DOMContentLoaded', function() {
                         previewPlayerReady = true;
                         event.target.mute();
                         event.target.playVideo();
+                    },
+                    onStateChange(event) {
+                        previewIframe.classList.toggle('is-playing', event.data === YT.PlayerState.PLAYING);
                     }
                 }
             });
@@ -89,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('a[href^="#"]').forEach(link => {
         link.addEventListener('click', event => {
             const href = link.getAttribute('href');
-            if (!href || href === '#') return;
+            if (!href || href === '#' || link.classList.contains('selected-project-trigger')) return;
 
             const target = document.querySelector(href);
             if (!target) return;
@@ -206,7 +209,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Update desktop buttons active state
         filterButtons.forEach(btn => {
-            btn.classList.toggle('active', btn.dataset.category === category);
+            const selected = btn.dataset.category === category;
+            btn.classList.toggle('active', selected);
+            btn.setAttribute('aria-pressed', String(selected));
         });
         
         // Sort items if needed
@@ -546,11 +551,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         bindEvents() {
             this.tracks.forEach((track, index) => {
-                track.addEventListener('click', (e) => {
-                    if (e.target.closest('.track-play-btn')) {
-                        e.preventDefault();
-                        this.togglePlay();
-                    } else if (index === this.currentTrackIndex) {
+                track.addEventListener('click', () => {
+                    if (index === this.currentTrackIndex) {
                         this.togglePlay();
                     } else {
                         this.selectTrack(index);
@@ -564,7 +566,7 @@ document.addEventListener('DOMContentLoaded', function() {
             this.audio.addEventListener('error', (e) => this.onError(e));
 
             document.addEventListener('keydown', (e) => {
-                if (e.code === 'Space' && e.target.tagName !== 'INPUT' && e.target.tagName !== 'TEXTAREA') {
+                if (e.code === 'Space' && !e.target.closest('button, a, input, textarea, select, [role="button"], [contenteditable]')) {
                     const anyModalActive = document.querySelector('.project-modal-overlay.active');
                     if (!anyModalActive) {
                         e.preventDefault();
@@ -663,13 +665,12 @@ document.addEventListener('DOMContentLoaded', function() {
         },
 
         updatePlayIcon() {
-            if (this.isPlaying) {
-                this.tracks.forEach((track, i) => {
-                    track.classList.toggle('playing', i === this.currentTrackIndex);
-                });
-            } else {
-                this.tracks.forEach(track => track.classList.remove('playing'));
-            }
+            this.tracks.forEach((track, index) => {
+                const playing = this.isPlaying && index === this.currentTrackIndex;
+                track.classList.toggle('playing', playing);
+                const name = track.querySelector('.track-name').textContent;
+                track.querySelector('button').setAttribute('aria-label', (playing ? 'Pause ' : 'Play ') + name);
+            });
         }
     };
 
